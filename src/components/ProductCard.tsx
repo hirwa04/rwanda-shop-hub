@@ -31,7 +31,6 @@ const ProductCard = ({ product, index = 0 }: Props) => {
         to={`/product/${product.id}`}
         className="group block bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300"
       >
-        {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-secondary">
           <img
             src={product.image}
@@ -49,7 +48,6 @@ const ProductCard = ({ product, index = 0 }: Props) => {
               <span className="text-sm font-semibold text-foreground">Out of Stock</span>
             </div>
           )}
-          {/* Quick actions */}
           <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button className="w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors shadow-sm">
               <Heart className="w-4 h-4" />
@@ -57,27 +55,24 @@ const ProductCard = ({ product, index = 0 }: Props) => {
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-3 sm:p-4">
-          <p className="text-xs text-muted-foreground capitalize mb-1">{product.category}</p>
+          <p className="text-xs text-muted-foreground capitalize mb-1">{product.flowerType}</p>
           <h3 className="font-semibold text-sm leading-snug text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
 
-          {/* Rating */}
           <div className="flex items-center gap-1 mb-2">
             <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-accent text-accent" : "text-border"}`}
+                  className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-gold text-gold" : "text-border"}`}
                 />
               ))}
             </div>
             <span className="text-[10px] text-muted-foreground">({product.reviewCount})</span>
           </div>
 
-          {/* Price + Add to cart */}
           <div className="flex items-center justify-between gap-2">
             <div>
               <span className="font-bold text-sm text-card-foreground">{formatPrice(product.price)}</span>
