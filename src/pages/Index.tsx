@@ -66,7 +66,7 @@ const Index = () => {
             <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">Shop by Occasion</h2>
             <p className="text-sm text-muted-foreground mt-1">Find the perfect arrangement for every moment</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.id}
