@@ -22,7 +22,7 @@ const Footer = () => (
         <div>
           <h4 className="font-display text-sm font-semibold mb-4">Shop</h4>
           <ul className="space-y-2 text-sm opacity-70">
-            {["All Flowers", "Roses", "Lilies", "Birthday", "Wedding", "Sympathy"].map((l) => (
+            {["All Products", "Flowers", "Liquor & Wine", "Jewelry", "Stuffed Toys", "Wedding"].map((l) => (
               <li key={l}>
                 <Link to="/shop" className="hover:text-primary transition-colors">{l}</Link>
               </li>

@@ -4,7 +4,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
-import { products, categories, flowerTypes } from "@/data/products";
+import { products, categories, flowerTypes, productTypes } from "@/data/products";
 
 const sortOptions = [
   { value: "default", label: "Default" },
@@ -40,7 +40,7 @@ const Shop = () => {
   const FilterContent = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="font-semibold text-sm mb-3 text-foreground">Occasion</h3>
+        <h3 className="font-semibold text-sm mb-3 text-foreground">Category</h3>
         <div className="space-y-1">
           <button
             onClick={() => setCategory("")}
@@ -60,7 +60,7 @@ const Shop = () => {
         </div>
       </div>
       <div>
-        <h3 className="font-semibold text-sm mb-3 text-foreground">Flower Type</h3>
+        <h3 className="font-semibold text-sm mb-3 text-foreground">Product Type</h3>
         <div className="space-y-1">
           <button
             onClick={() => setActiveFlowerType("")}
@@ -68,7 +68,13 @@ const Shop = () => {
           >
             All Types
           </button>
-          {flowerTypes.map((type) => (
+          {(activeCategory && ["liquor", "jewelry", "stuffed-toys"].includes(activeCategory)
+            ? products
+                .filter((p) => p.category === activeCategory)
+                .map((p) => p.flowerType)
+                .filter((v, i, a) => a.indexOf(v) === i)
+            : flowerTypes
+          ).map((type) => (
             <button
               key={type}
               onClick={() => setActiveFlowerType(type)}
@@ -88,7 +94,7 @@ const Shop = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
-              {activeCategory ? categories.find((c) => c.id === activeCategory)?.name || "Shop" : "All Flowers"}
+              {activeCategory ? categories.find((c) => c.id === activeCategory)?.name || "Shop" : "All Products"}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">{filtered.length} arrangements</p>
           </div>
