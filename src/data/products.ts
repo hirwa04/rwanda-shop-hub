@@ -1,3 +1,26 @@
+import imgRosesPastel from "@/assets/products/roses-pastel.jpg";
+import imgBirthdayCake from "@/assets/products/birthday-cake.jpg";
+import imgWedding from "@/assets/products/wedding.jpg";
+import imgGardenTribute from "@/assets/products/garden-tribute.jpg";
+import imgLilyEveryday from "@/assets/products/lily-everyday.jpg";
+import imgRedWine from "@/assets/products/red-wine.jpg";
+import imgGoldNecklace from "@/assets/products/gold-necklace.jpg";
+import imgTeddyBear from "@/assets/products/teddy-bear.jpg";
+import imgRedRoses from "@/assets/products/red-roses.jpg";
+import imgPinkMixed from "@/assets/products/pink-mixed.jpg";
+import imgSunflowers from "@/assets/products/sunflowers.jpg";
+import imgHydrangea from "@/assets/products/hydrangea.jpg";
+import imgWhiteLily from "@/assets/products/white-lily.jpg";
+import imgOrchid from "@/assets/products/orchid.jpg";
+import imgRoseBox from "@/assets/products/rose-box.jpg";
+import imgChampagne from "@/assets/products/champagne.jpg";
+import imgAmarula from "@/assets/products/amarula.jpg";
+import imgWhisky from "@/assets/products/whisky.jpg";
+import imgPearlEarrings from "@/assets/products/pearl-earrings.jpg";
+import imgBracelet from "@/assets/products/bracelet.jpg";
+import imgBunnyPlush from "@/assets/products/bunny-plush.jpg";
+import imgLoveBear from "@/assets/products/love-bear.jpg";
+
 export interface ProductSize {
   label: string;
   price: number;
@@ -29,19 +52,16 @@ export interface Category {
   emoji: string;
 }
 
-const IMG = (seed: string) =>
-  `https://images.unsplash.com/${seed}?w=600&h=600&fit=crop`;
-
 export const categories: Category[] = [
-  { id: "love", name: "Love & Romance", image: IMG("photo-1490750967868-88aa4f44baee"), productCount: 24, emoji: "❤️" },
-  { id: "birthday", name: "Birthday", image: IMG("photo-1530103862676-de8c9debad1d"), productCount: 18, emoji: "🎂" },
-  { id: "wedding", name: "Wedding", image: IMG("photo-1519741497674-611481863552"), productCount: 15, emoji: "💒" },
-  { id: "sympathy", name: "Sympathy", image: IMG("photo-1490750967868-88aa4f44baee"), productCount: 12, emoji: "🕊️" },
-  { id: "congratulations", name: "Congratulations", image: IMG("photo-1487530811176-3780de880c2d"), productCount: 10, emoji: "🎉" },
-  { id: "everyday", name: "Everyday", image: IMG("photo-1508610048659-a06b669e3321"), productCount: 20, emoji: "🌸" },
-  { id: "liquor", name: "Liquor & Wine", image: IMG("photo-1553361371-9b22f78e8b1d"), productCount: 8, emoji: "🍷" },
-  { id: "jewelry", name: "Jewelry", image: IMG("photo-1515562141589-67f0d932b42a"), productCount: 6, emoji: "💎" },
-  { id: "stuffed-toys", name: "Stuffed Toys", image: IMG("photo-1559715541-5daf8a0296d0"), productCount: 6, emoji: "🧸" },
+  { id: "love", name: "Love & Romance", image: imgRosesPastel, productCount: 24, emoji: "❤️" },
+  { id: "birthday", name: "Birthday", image: imgBirthdayCake, productCount: 18, emoji: "🎂" },
+  { id: "wedding", name: "Wedding", image: imgWedding, productCount: 15, emoji: "💒" },
+  { id: "sympathy", name: "Sympathy", image: imgRosesPastel, productCount: 12, emoji: "🕊️" },
+  { id: "congratulations", name: "Congratulations", image: imgGardenTribute, productCount: 10, emoji: "🎉" },
+  { id: "everyday", name: "Everyday", image: imgLilyEveryday, productCount: 20, emoji: "🌸" },
+  { id: "liquor", name: "Liquor & Wine", image: imgRedWine, productCount: 8, emoji: "🍷" },
+  { id: "jewelry", name: "Jewelry", image: imgGoldNecklace, productCount: 6, emoji: "💎" },
+  { id: "stuffed-toys", name: "Stuffed Toys", image: imgTeddyBear, productCount: 6, emoji: "🧸" },
 ];
 
 export const flowerTypes = [
@@ -75,8 +95,8 @@ export const products: Product[] = [
     name: "Red Rose Romance Bouquet",
     price: 35000,
     originalPrice: 45000,
-    image: IMG("photo-1455659817273-f96807779a8a"),
-    images: [IMG("photo-1455659817273-f96807779a8a"), IMG("photo-1490750967868-88aa4f44baee"), IMG("photo-1561181286-d3fee7d55364")],
+    image: imgRedRoses,
+    images: [imgRedRoses, imgRosesPastel, imgPinkMixed],
     category: "love",
     flowerType: "Roses",
     rating: 4.9,
@@ -95,8 +115,8 @@ export const products: Product[] = [
     id: "2",
     name: "Sunshine Sunflower Arrangement",
     price: 28000,
-    image: IMG("photo-1551837876-4dc06e97cae4"),
-    images: [IMG("photo-1551837876-4dc06e97cae4"), IMG("photo-1596438459194-f275f413d6ff")],
+    image: imgSunflowers,
+    images: [imgSunflowers, imgHydrangea],
     category: "birthday",
     flowerType: "Sunflowers",
     rating: 4.7,
@@ -116,8 +136,8 @@ export const products: Product[] = [
     name: "Elegant White Lily Cascade",
     price: 48000,
     originalPrice: 58000,
-    image: IMG("photo-1563241527-3004b7be0ffd"),
-    images: [IMG("photo-1563241527-3004b7be0ffd"), IMG("photo-1508610048659-a06b669e3321")],
+    image: imgWhiteLily,
+    images: [imgWhiteLily, imgLilyEveryday],
     category: "wedding",
     flowerType: "Lilies",
     rating: 4.8,
@@ -136,8 +156,8 @@ export const products: Product[] = [
     id: "4",
     name: "Peaceful Garden Tribute",
     price: 42000,
-    image: IMG("photo-1487530811176-3780de880c2d"),
-    images: [IMG("photo-1487530811176-3780de880c2d")],
+    image: imgGardenTribute,
+    images: [imgGardenTribute],
     category: "sympathy",
     flowerType: "Mixed Bouquet",
     rating: 4.9,
@@ -155,8 +175,8 @@ export const products: Product[] = [
     name: "Pink Paradise Mixed Bouquet",
     price: 32000,
     originalPrice: 40000,
-    image: IMG("photo-1561181286-d3fee7d55364"),
-    images: [IMG("photo-1561181286-d3fee7d55364"), IMG("photo-1490750967868-88aa4f44baee")],
+    image: imgPinkMixed,
+    images: [imgPinkMixed, imgRosesPastel],
     category: "birthday",
     flowerType: "Mixed Bouquet",
     rating: 4.6,
@@ -175,8 +195,8 @@ export const products: Product[] = [
     id: "6",
     name: "Purple Orchid Elegance",
     price: 55000,
-    image: IMG("photo-1567696153798-9111f9cd3d0d"),
-    images: [IMG("photo-1567696153798-9111f9cd3d0d")],
+    image: imgOrchid,
+    images: [imgOrchid],
     category: "congratulations",
     flowerType: "Orchids",
     rating: 4.8,
@@ -195,8 +215,8 @@ export const products: Product[] = [
     id: "7",
     name: "Pastel Tulip Dream",
     price: 30000,
-    image: IMG("photo-1490750967868-88aa4f44baee"),
-    images: [IMG("photo-1490750967868-88aa4f44baee")],
+    image: imgRosesPastel,
+    images: [imgRosesPastel],
     category: "everyday",
     flowerType: "Tulips",
     rating: 4.5,
@@ -215,8 +235,8 @@ export const products: Product[] = [
     name: "Romantic Rose & Lily Duo",
     price: 45000,
     originalPrice: 55000,
-    image: IMG("photo-1508610048659-a06b669e3321"),
-    images: [IMG("photo-1508610048659-a06b669e3321"), IMG("photo-1455659817273-f96807779a8a")],
+    image: imgLilyEveryday,
+    images: [imgLilyEveryday, imgRedRoses],
     category: "love",
     flowerType: "Mixed Bouquet",
     rating: 4.7,
@@ -234,8 +254,8 @@ export const products: Product[] = [
     id: "9",
     name: "Bright Carnation Burst",
     price: 18000,
-    image: IMG("photo-1530103862676-de8c9debad1d"),
-    images: [IMG("photo-1530103862676-de8c9debad1d")],
+    image: imgBirthdayCake,
+    images: [imgBirthdayCake],
     category: "everyday",
     flowerType: "Carnations",
     rating: 4.3,
@@ -254,8 +274,8 @@ export const products: Product[] = [
     name: "Grand Wedding Centerpiece",
     price: 85000,
     originalPrice: 100000,
-    image: IMG("photo-1519741497674-611481863552"),
-    images: [IMG("photo-1519741497674-611481863552")],
+    image: imgWedding,
+    images: [imgWedding],
     category: "wedding",
     flowerType: "Mixed Bouquet",
     rating: 4.9,
@@ -273,8 +293,8 @@ export const products: Product[] = [
     id: "11",
     name: "Blue Hydrangea Cloud",
     price: 38000,
-    image: IMG("photo-1596438459194-f275f413d6ff"),
-    images: [IMG("photo-1596438459194-f275f413d6ff")],
+    image: imgHydrangea,
+    images: [imgHydrangea],
     category: "congratulations",
     flowerType: "Hydrangeas",
     rating: 4.6,
@@ -292,8 +312,8 @@ export const products: Product[] = [
     id: "12",
     name: "Classic Red Rose Box",
     price: 50000,
-    image: IMG("photo-1494972308805-463bc619d34e"),
-    images: [IMG("photo-1494972308805-463bc619d34e")],
+    image: imgRoseBox,
+    images: [imgRoseBox],
     category: "love",
     flowerType: "Roses",
     rating: 4.8,
@@ -313,8 +333,8 @@ export const products: Product[] = [
     id: "13",
     name: "Moët & Chandon Brut Imperial",
     price: 65000,
-    image: IMG("photo-1592483648228-b35146a4330c"),
-    images: [IMG("photo-1592483648228-b35146a4330c")],
+    image: imgChampagne,
+    images: [imgChampagne],
     category: "liquor",
     flowerType: "Champagne",
     rating: 4.9,
@@ -333,8 +353,8 @@ export const products: Product[] = [
     id: "14",
     name: "Amarula Cream Liqueur",
     price: 22000,
-    image: IMG("photo-1569529465841-dfecdab7503b"),
-    images: [IMG("photo-1569529465841-dfecdab7503b")],
+    image: imgAmarula,
+    images: [imgAmarula],
     category: "liquor",
     flowerType: "Cream Liqueur",
     rating: 4.5,
@@ -352,8 +372,8 @@ export const products: Product[] = [
     name: "Johnnie Walker Black Label",
     price: 48000,
     originalPrice: 55000,
-    image: IMG("photo-1527281400683-1aae777175f8"),
-    images: [IMG("photo-1527281400683-1aae777175f8")],
+    image: imgWhisky,
+    images: [imgWhisky],
     category: "liquor",
     flowerType: "Whisky",
     rating: 4.7,
@@ -371,8 +391,8 @@ export const products: Product[] = [
     id: "16",
     name: "Cape Mentelle Cabernet Sauvignon",
     price: 35000,
-    image: IMG("photo-1553361371-9b22f78e8b1d"),
-    images: [IMG("photo-1553361371-9b22f78e8b1d")],
+    image: imgRedWine,
+    images: [imgRedWine],
     category: "liquor",
     flowerType: "Red Wine",
     rating: 4.6,
@@ -389,8 +409,8 @@ export const products: Product[] = [
     id: "17",
     name: "Gold Heart Pendant Necklace",
     price: 45000,
-    image: IMG("photo-1515562141589-67f0d932b42a"),
-    images: [IMG("photo-1515562141589-67f0d932b42a")],
+    image: imgGoldNecklace,
+    images: [imgGoldNecklace],
     category: "jewelry",
     flowerType: "Necklace",
     rating: 4.8,
@@ -409,8 +429,8 @@ export const products: Product[] = [
     id: "18",
     name: "Pearl Drop Earrings",
     price: 28000,
-    image: IMG("photo-1535632066927-ab7c9ab60908"),
-    images: [IMG("photo-1535632066927-ab7c9ab60908")],
+    image: imgPearlEarrings,
+    images: [imgPearlEarrings],
     category: "jewelry",
     flowerType: "Earrings",
     rating: 4.7,
@@ -427,8 +447,8 @@ export const products: Product[] = [
     name: "Rose Gold Crystal Bracelet",
     price: 32000,
     originalPrice: 40000,
-    image: IMG("photo-1611591437281-460bfbe1220a"),
-    images: [IMG("photo-1611591437281-460bfbe1220a")],
+    image: imgBracelet,
+    images: [imgBracelet],
     category: "jewelry",
     flowerType: "Bracelet",
     rating: 4.6,
@@ -447,8 +467,8 @@ export const products: Product[] = [
     id: "20",
     name: "Classic Red Teddy Bear",
     price: 18000,
-    image: IMG("photo-1559715541-5daf8a0296d0"),
-    images: [IMG("photo-1559715541-5daf8a0296d0")],
+    image: imgTeddyBear,
+    images: [imgTeddyBear],
     category: "stuffed-toys",
     flowerType: "Teddy Bear",
     rating: 4.8,
@@ -467,8 +487,8 @@ export const products: Product[] = [
     id: "21",
     name: "Giant Pink Bunny Plush",
     price: 25000,
-    image: IMG("photo-1585155770913-5f980b0e4bf6"),
-    images: [IMG("photo-1585155770913-5f980b0e4bf6")],
+    image: imgBunnyPlush,
+    images: [imgBunnyPlush],
     category: "stuffed-toys",
     flowerType: "Plush Animal",
     rating: 4.6,
@@ -486,8 +506,8 @@ export const products: Product[] = [
     id: "22",
     name: "Love Bear with Heart Pillow",
     price: 22000,
-    image: IMG("photo-1562040506-a9b32cb51b94"),
-    images: [IMG("photo-1562040506-a9b32cb51b94")],
+    image: imgLoveBear,
+    images: [imgLoveBear],
     category: "stuffed-toys",
     flowerType: "Teddy Bear",
     rating: 4.7,
