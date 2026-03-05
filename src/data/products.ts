@@ -20,6 +20,12 @@ import imgPearlEarrings from "@/assets/products/pearl-earrings.jpg";
 import imgBracelet from "@/assets/products/bracelet.jpg";
 import imgBunnyPlush from "@/assets/products/bunny-plush.jpg";
 import imgLoveBear from "@/assets/products/love-bear.jpg";
+import imgCupcakesRose from "@/assets/products/cupcakes-rose.jpg";
+import imgCupcakesAssorted from "@/assets/products/cupcakes-assorted.jpg";
+import imgCupcakesRedvelvet from "@/assets/products/cupcakes-redvelvet.jpg";
+import imgCakeWedding from "@/assets/products/cake-wedding.jpg";
+import imgCakeBirthday from "@/assets/products/cake-birthday.jpg";
+import imgCakeChocolate from "@/assets/products/cake-chocolate.jpg";
 
 export interface ProductSize {
   label: string;
@@ -62,6 +68,8 @@ export const categories: Category[] = [
   { id: "liquor", name: "Liquor & Wine", image: imgRedWine, productCount: 8, emoji: "🍷" },
   { id: "jewelry", name: "Jewelry", image: imgGoldNecklace, productCount: 6, emoji: "💎" },
   { id: "stuffed-toys", name: "Stuffed Toys", image: imgTeddyBear, productCount: 6, emoji: "🧸" },
+  { id: "cupcakes", name: "Cupcakes", image: imgCupcakesRose, productCount: 3, emoji: "🧁" },
+  { id: "cakes", name: "Cakes", image: imgCakeBirthday, productCount: 3, emoji: "🎂" },
 ];
 
 export const flowerTypes = [
@@ -87,6 +95,10 @@ export const productTypes = [
   "Teddy Bear",
   "Plush Animal",
   "Character Plush",
+  "Cupcakes",
+  "Birthday Cake",
+  "Wedding Cake",
+  "Chocolate Cake",
 ];
 
 export const products: Product[] = [
@@ -519,6 +531,127 @@ export const products: Product[] = [
     sizes: [
       { label: "Standard (25cm)", price: 22000 },
       { label: "Large (40cm)", price: 38000 },
+    ],
+  },
+  // ── Cupcakes ──
+  {
+    id: "23",
+    name: "Rose Frosting Chocolate Cupcakes",
+    price: 15000,
+    image: imgCupcakesRose,
+    images: [imgCupcakesRose],
+    category: "cupcakes",
+    flowerType: "Cupcakes",
+    rating: 4.8,
+    reviewCount: 76,
+    inStock: true,
+    badge: "Best Seller",
+    shortDescription: "Rich chocolate cupcakes topped with pink rose buttercream.",
+    description: "Indulge in our handcrafted chocolate cupcakes crowned with beautiful pink rose-shaped buttercream frosting. Perfect as a gift add-on or standalone treat for any celebration.",
+    sizes: [
+      { label: "Box of 4", price: 10000 },
+      { label: "Box of 6", price: 15000 },
+      { label: "Box of 12", price: 28000 },
+    ],
+  },
+  {
+    id: "24",
+    name: "Assorted Celebration Cupcakes",
+    price: 18000,
+    image: imgCupcakesAssorted,
+    images: [imgCupcakesAssorted],
+    category: "cupcakes",
+    flowerType: "Cupcakes",
+    rating: 4.6,
+    reviewCount: 54,
+    inStock: true,
+    badge: "Popular",
+    shortDescription: "Colorful assorted cupcakes in a beautiful gift box.",
+    description: "A delightful box of assorted gourmet cupcakes with colorful swirl frosting and sprinkles. Each cupcake is a different flavor — vanilla, chocolate, strawberry, and lemon. Perfect for parties and gifts.",
+    sizes: [
+      { label: "Box of 6", price: 18000 },
+      { label: "Box of 12", price: 32000 },
+    ],
+  },
+  {
+    id: "25",
+    name: "Red Velvet Love Cupcakes",
+    price: 16000,
+    image: imgCupcakesRedvelvet,
+    images: [imgCupcakesRedvelvet],
+    category: "cupcakes",
+    flowerType: "Cupcakes",
+    rating: 4.9,
+    reviewCount: 93,
+    inStock: true,
+    badge: "New",
+    shortDescription: "Classic red velvet cupcakes with cream cheese frosting & heart sprinkles.",
+    description: "Our signature red velvet cupcakes feature moist, velvety cake topped with silky cream cheese frosting and adorable heart sprinkles. A romantic treat perfect for Valentine's Day or anniversaries.",
+    sizes: [
+      { label: "Box of 4", price: 12000 },
+      { label: "Box of 6", price: 16000 },
+      { label: "Box of 12", price: 30000 },
+    ],
+  },
+  // ── Cakes ──
+  {
+    id: "26",
+    name: "Elegant Floral Wedding Cake",
+    price: 95000,
+    image: imgCakeWedding,
+    images: [imgCakeWedding],
+    category: "cakes",
+    flowerType: "Wedding Cake",
+    rating: 4.9,
+    reviewCount: 28,
+    inStock: true,
+    badge: "Premium",
+    shortDescription: "Two-tier white wedding cake adorned with fresh flowers.",
+    description: "A stunning two-tier wedding cake with smooth white fondant, decorated with fresh pink roses and daisies. Customize flavors and fillings to make your special day unforgettable.",
+    sizes: [
+      { label: "2-Tier (serves 30)", price: 95000 },
+      { label: "3-Tier (serves 60)", price: 150000 },
+    ],
+  },
+  {
+    id: "27",
+    name: "Birthday Celebration Cake",
+    price: 35000,
+    image: imgCakeBirthday,
+    images: [imgCakeBirthday],
+    category: "cakes",
+    flowerType: "Birthday Cake",
+    rating: 4.7,
+    reviewCount: 112,
+    inStock: true,
+    badge: "Popular",
+    shortDescription: "Festive birthday cake with sprinkles and candles.",
+    description: "Make birthdays extra special with our colorful celebration cake! Moist vanilla sponge layered with buttercream, covered in rainbow sprinkles and topped with candles. Available in multiple sizes.",
+    sizes: [
+      { label: "Small (serves 8)", price: 25000 },
+      { label: "Medium (serves 16)", price: 35000 },
+      { label: "Large (serves 24)", price: 50000 },
+    ],
+  },
+  {
+    id: "28",
+    name: "Dark Chocolate Berry Cake",
+    price: 42000,
+    originalPrice: 50000,
+    image: imgCakeChocolate,
+    images: [imgCakeChocolate],
+    category: "cakes",
+    flowerType: "Chocolate Cake",
+    rating: 4.8,
+    reviewCount: 67,
+    inStock: true,
+    badge: "Sale",
+    shortDescription: "Rich chocolate cake with ganache drip and fresh berries.",
+    description: "An irresistible dark chocolate layer cake with velvety ganache drip, topped with fresh raspberries, blueberries, and blackberries. A chocolate lover's dream and an impressive gift for any occasion.",
+    sizes: [
+      { label: "Small (serves 8)", price: 30000 },
+      { label: "Medium (serves 16)", price: 42000 },
+      { label: "Large (serves 24)", price: 60000 },
     ],
   },
 ];
