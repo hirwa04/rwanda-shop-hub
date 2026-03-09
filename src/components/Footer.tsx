@@ -11,7 +11,7 @@ const Footer = () => (
               <Flower2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display text-xl font-bold tracking-tight">
-              Ifeza<span className="text-primary">.rw</span>
+              Flora<span className="text-primary">Bell</span>
             </span>
           </Link>
           <p className="text-sm opacity-70 leading-relaxed">
