@@ -23,7 +23,7 @@ const Index = () => {
       <section className="relative overflow-hidden bg-primary-dark">
         <img
           src={heroBanner}
-          alt="Beautiful flower arrangements at Flora Bell"
+          alt="Beautiful flower arrangements at Flora Belle"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
         <div className="relative container py-16 sm:py-24 lg:py-32">
