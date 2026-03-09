@@ -52,7 +52,7 @@ const Footer = () => (
       </div>
 
       <div className="border-t border-background/10 pt-6 text-center text-xs opacity-50">
-        © {new Date().getFullYear()} Flora Bell — Fresh Flowers, Delivered with Love 🌸
+        © {new Date().getFullYear()} Flora Belle — Fresh Flowers, Delivered with Love 🌸
       </div>
     </div>
   </footer>

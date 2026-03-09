@@ -39,7 +39,7 @@ const Header = () => {
               <Flower2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display text-xl font-bold text-foreground tracking-tight">
-              Flora<span className="text-primary">Bell</span>
+              Flora<span className="text-primary">Belle</span>
             </span>
           </Link>
 
