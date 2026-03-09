@@ -11,7 +11,7 @@ const Footer = () => (
               <Flower2 className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display text-xl font-bold tracking-tight">
-              Ifeza<span className="text-primary">.rw</span>
+              Flora<span className="text-primary">Bell</span>
             </span>
           </Link>
           <p className="text-sm opacity-70 leading-relaxed">
@@ -46,13 +46,13 @@ const Footer = () => (
           <ul className="space-y-3 text-sm opacity-70">
             <li className="flex items-center gap-2"><MapPin className="w-4 h-4 shrink-0" /> Kigali, Rwanda</li>
             <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /> +250 788 000 000</li>
-            <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> hello@ifeza.rw</li>
+            <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> hello@florabell.rw</li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-background/10 pt-6 text-center text-xs opacity-50">
-        © {new Date().getFullYear()} Ifeza.rw — Fresh Flowers, Delivered with Love 🌸
+        © {new Date().getFullYear()} Flora Bell — Fresh Flowers, Delivered with Love 🌸
       </div>
     </div>
   </footer>

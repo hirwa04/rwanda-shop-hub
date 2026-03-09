@@ -8,6 +8,7 @@ import heroBanner from "@/assets/hero-banner.jpg";
 
 const bestSellers = products.filter((p) => p.badge === "Best Seller" || p.badge === "Popular").slice(0, 4);
 const newArrivals = products.filter((p) => p.badge === "New" || p.badge === "Premium").slice(0, 4);
+const sweetTreats = products.filter((p) => p.category === "cupcakes" || p.category === "cakes");
 
 const testimonials = [
   { name: "Marie L.", text: "The roses were absolutely stunning! Delivered fresh and on time. My wife loved them.", rating: 5 },
@@ -22,7 +23,7 @@ const Index = () => {
       <section className="relative overflow-hidden bg-primary-dark">
         <img
           src={heroBanner}
-          alt="Beautiful flower arrangements at Ifeza flower shop"
+          alt="Beautiful flower arrangements at Flora Bell"
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
         <div className="relative container py-16 sm:py-24 lg:py-32">
@@ -141,8 +142,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* New Arrivals */}
+      {/* Sweet Treats — Cakes & Cupcakes */}
       <section className="py-10 sm:py-16">
+        <div className="container">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">🧁 Cakes & Cupcakes</h2>
+            <Link to="/shop?category=cupcakes" className="text-sm text-primary font-medium hover:underline">View All</Link>
+          </div>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {sweetTreats.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals */}
+      <section className="py-10 sm:py-16 bg-secondary">
         <div className="container">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">New & Premium</h2>
