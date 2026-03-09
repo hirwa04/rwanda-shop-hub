@@ -142,8 +142,23 @@ const Index = () => {
         </div>
       </section>
 
-      {/* New Arrivals */}
+      {/* Sweet Treats — Cakes & Cupcakes */}
       <section className="py-10 sm:py-16">
+        <div className="container">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">🧁 Cakes & Cupcakes</h2>
+            <Link to="/shop?category=cupcakes" className="text-sm text-primary font-medium hover:underline">View All</Link>
+          </div>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {sweetTreats.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals */}
+      <section className="py-10 sm:py-16 bg-secondary">
         <div className="container">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">New & Premium</h2>
