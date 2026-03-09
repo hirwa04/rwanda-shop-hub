@@ -8,6 +8,7 @@ import heroBanner from "@/assets/hero-banner.jpg";
 
 const bestSellers = products.filter((p) => p.badge === "Best Seller" || p.badge === "Popular").slice(0, 4);
 const newArrivals = products.filter((p) => p.badge === "New" || p.badge === "Premium").slice(0, 4);
+const sweetTreats = products.filter((p) => p.category === "cupcakes" || p.category === "cakes");
 
 const testimonials = [
   { name: "Marie L.", text: "The roses were absolutely stunning! Delivered fresh and on time. My wife loved them.", rating: 5 },
