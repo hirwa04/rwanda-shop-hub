@@ -46,7 +46,7 @@ const Footer = () => (
           <ul className="space-y-3 text-sm opacity-70">
             <li className="flex items-center gap-2"><MapPin className="w-4 h-4 shrink-0" /> Kigali, Rwanda</li>
             <li className="flex items-center gap-2"><Phone className="w-4 h-4 shrink-0" /> +250 788 000 000</li>
-            <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> hello@ifeza.rw</li>
+            <li className="flex items-center gap-2"><Mail className="w-4 h-4 shrink-0" /> hello@florabell.rw</li>
           </ul>
         </div>
       </div>
