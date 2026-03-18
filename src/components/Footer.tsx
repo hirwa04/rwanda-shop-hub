@@ -22,9 +22,16 @@ const Footer = () => (
         <div>
           <h4 className="font-display text-sm font-semibold mb-4">Shop</h4>
           <ul className="space-y-2 text-sm opacity-70">
-            {["All Products", "Flowers", "Liquor & Wine", "Jewelry", "Stuffed Toys", "Wedding"].map((l) => (
-              <li key={l}>
-                <Link to="/shop" className="hover:text-primary transition-colors">{l}</Link>
+            {[
+              { label: "All Products", to: "/shop" },
+              { label: "Flowers", to: "/shop?category=flowers" },
+              { label: "Liquor & Wine", to: "/shop?category=liquor" },
+              { label: "Jewelry", to: "/shop?category=jewelry" },
+              { label: "Stuffed Toys", to: "/shop?category=stuffed-toys" },
+              { label: "Wedding", to: "/shop?category=wedding" },
+            ].map((l) => (
+              <li key={l.label}>
+                <Link to={l.to} className="hover:text-primary transition-colors">{l.label}</Link>
               </li>
             ))}
           </ul>
