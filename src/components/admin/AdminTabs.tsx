@@ -1,0 +1,523 @@
+import { useState } from "react";
+import { products, categories, formatPrice } from "@/data/products";
+import { motion } from "framer-motion";
+import {
+  Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
+  BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
+  XCircle, Truck, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+} from "recharts";
+
+// Mock data
+const revenueData = [
+  { month: "Jan", revenue: 1200000, orders: 45 },
+  { month: "Feb", revenue: 1800000, orders: 62 },
+  { month: "Mar", revenue: 1500000, orders: 53 },
+  { month: "Apr", revenue: 2200000, orders: 78 },
+  { month: "May", revenue: 2800000, orders: 95 },
+  { month: "Jun", revenue: 2400000, orders: 82 },
+  { month: "Jul", revenue: 3100000, orders: 110 },
+];
+
+const categoryRevenue = categories.slice(0, 7).map((cat, i) => ({
+  name: cat.name,
+  value: [35, 20, 12, 10, 8, 8, 7][i] || 5,
+}));
+
+const PIE_COLORS = [
+  "hsl(333, 71%, 50%)", "hsl(355, 100%, 70%)", "hsl(30, 80%, 55%)",
+  "hsl(200, 70%, 50%)", "hsl(150, 60%, 45%)", "hsl(270, 50%, 55%)", "hsl(45, 90%, 55%)"
+];
+
+const recentOrders = [
+  { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", date: "2025-03-26" },
+  { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "shipped", date: "2025-03-26" },
+  { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", date: "2025-03-25" },
+  { id: "ORD-1039", customer: "David Habimana", items: 2, total: 67000, status: "delivered", date: "2025-03-25" },
+  { id: "ORD-1038", customer: "Grace Ingabire", items: 4, total: 115000, status: "delivered", date: "2025-03-24" },
+  { id: "ORD-1037", customer: "Samuel Niyonzima", items: 1, total: 22000, status: "cancelled", date: "2025-03-24" },
+  { id: "ORD-1036", customer: "Diane Mukiza", items: 2, total: 55000, status: "shipped", date: "2025-03-23" },
+  { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", date: "2025-03-23" },
+];
+
+const topCustomers = [
+  { name: "Marie Uwase", orders: 12, spent: 580000, avatar: "MU" },
+  { name: "Alice Kamari", orders: 9, spent: 420000, avatar: "AK" },
+  { name: "Grace Ingabire", orders: 8, spent: 395000, avatar: "GI" },
+  { name: "Jean Mugabo", orders: 7, spent: 310000, avatar: "JM" },
+  { name: "Diane Mukiza", orders: 6, spent: 275000, avatar: "DM" },
+];
+
+const statusIcon = (s: string) => {
+  switch (s) {
+    case "delivered": return <CheckCircle2 className="w-4 h-4 text-green-600" />;
+    case "shipped": return <Truck className="w-4 h-4 text-blue-500" />;
+    case "processing": return <Clock className="w-4 h-4 text-amber-500" />;
+    case "cancelled": return <XCircle className="w-4 h-4 text-red-500" />;
+    default: return null;
+  }
+};
+
+const statusColor = (s: string) => {
+  switch (s) {
+    case "delivered": return "bg-green-100 text-green-700";
+    case "shipped": return "bg-blue-100 text-blue-700";
+    case "processing": return "bg-amber-100 text-amber-700";
+    case "cancelled": return "bg-red-100 text-red-700";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
+
+// ── Overview Tab ──
+export const OverviewTab = () => {
+  const totalRevenue = revenueData.reduce((a, b) => a + b.revenue, 0);
+  const totalOrders = revenueData.reduce((a, b) => a + b.orders, 0);
+  const avgOrderValue = Math.round(totalRevenue / totalOrders);
+
+  const stats = [
+    { label: "Total Revenue", value: `RWF ${(totalRevenue / 1000000).toFixed(1)}M`, change: "+18.2%", up: true, icon: DollarSign },
+    { label: "Total Orders", value: totalOrders.toString(), change: "+12.5%", up: true, icon: ShoppingCart },
+    { label: "Avg Order Value", value: formatPrice(avgOrderValue), change: "+4.1%", up: true, icon: TrendingUp },
+    { label: "Products", value: products.length.toString(), change: "+6", up: true, icon: Package },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+            className="bg-card rounded-xl border border-border p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <stat.icon className="w-5 h-5 text-primary" />
+              </div>
+              <span className={`text-xs font-medium flex items-center gap-0.5 ${stat.up ? "text-green-600" : "text-red-500"}`}>
+                {stat.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                {stat.change}
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+            <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Revenue Overview</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={revenueData}>
+              <defs>
+                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(333, 71%, 50%)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(333, 71%, 50%)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240, 4%, 83%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" tickFormatter={(v) => `${v / 1000000}M`} />
+              <Tooltip formatter={(v: number) => [`RWF ${v.toLocaleString()}`, "Revenue"]} />
+              <Area type="monotone" dataKey="revenue" stroke="hsl(333, 71%, 50%)" fill="url(#revGrad)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Sales by Category</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie data={categoryRevenue} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={2}>
+                {categoryRevenue.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+              </Pie>
+              <Tooltip formatter={(v: number) => [`${v}%`, "Share"]} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="grid grid-cols-2 gap-1 mt-2">
+            {categoryRevenue.slice(0, 6).map((c, i) => (
+              <div key={c.name} className="flex items-center gap-1.5 text-[11px]">
+                <div className="w-2 h-2 rounded-full shrink-0" style={{ background: PIE_COLORS[i] }} />
+                <span className="text-muted-foreground truncate">{c.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent orders + top customers */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 bg-card rounded-xl border border-border overflow-hidden">
+          <div className="p-5 border-b border-border flex items-center justify-between">
+            <h3 className="font-semibold text-foreground">Recent Orders</h3>
+            <span className="text-xs text-muted-foreground">{recentOrders.length} orders</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/30 border-b border-border">
+                  <th className="text-left p-3 font-medium text-muted-foreground">Order</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Total</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((o) => (
+                  <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                    <td className="p-3 font-medium text-primary">{o.id}</td>
+                    <td className="p-3 text-foreground">{o.customer}</td>
+                    <td className="p-3 text-foreground">{formatPrice(o.total)}</td>
+                    <td className="p-3">
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
+                        {statusIcon(o.status)}
+                        {o.status}
+                      </span>
+                    </td>
+                    <td className="p-3 text-muted-foreground">{o.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Top Customers</h3>
+          <div className="space-y-4">
+            {topCustomers.map((c, i) => (
+              <div key={c.name} className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                  {c.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{c.name}</p>
+                  <p className="text-xs text-muted-foreground">{c.orders} orders</p>
+                </div>
+                <p className="text-sm font-semibold text-foreground whitespace-nowrap">{formatPrice(c.spent)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Products Tab ──
+export const ProductsTab = () => {
+  const [search, setSearch] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+
+  const allCategories = [...new Set(products.map(p => p.category))];
+  const filtered = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat = catFilter === "all" || p.category === catFilter;
+    return matchSearch && matchCat;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <select
+            value={catFilter}
+            onChange={e => setCatFilter(e.target.value)}
+            className="text-sm border border-border rounded-lg px-3 py-2 bg-card text-foreground outline-none"
+          >
+            <option value="all">All Categories</option>
+            {allCategories.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
+          </select>
+          <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Add Product</Button>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/30 border-b border-border">
+                <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Rating</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <div>
+                        <p className="font-medium text-foreground">{p.name}</p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">{p.shortDescription}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4 text-muted-foreground capitalize">{p.category}</td>
+                  <td className="p-4 text-foreground font-medium">{formatPrice(p.price)}</td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span className="text-foreground">{p.rating}</span>
+                      <span className="text-muted-foreground">({p.reviewCount})</span>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.inStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      {p.inStock ? "In Stock" : "Out of Stock"}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-1">
+                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Edit className="w-4 h-4" /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-4 border-t border-border text-xs text-muted-foreground">
+          Showing {filtered.length} of {products.length} products
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Orders Tab ──
+export const OrdersTab = () => {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const filtered = statusFilter === "all" ? recentOrders : recentOrders.filter(o => o.status === statusFilter);
+
+  const orderStats = [
+    { label: "All Orders", count: recentOrders.length, color: "text-foreground" },
+    { label: "Processing", count: recentOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
+    { label: "Shipped", count: recentOrders.filter(o => o.status === "shipped").length, color: "text-blue-600" },
+    { label: "Delivered", count: recentOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
+    { label: "Cancelled", count: recentOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        {orderStats.map(s => (
+          <button
+            key={s.label}
+            onClick={() => setStatusFilter(s.label === "All Orders" ? "all" : s.label.toLowerCase())}
+            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              (s.label === "All Orders" ? "all" : s.label.toLowerCase()) === statusFilter
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-foreground border-border hover:bg-muted/50"
+            }`}
+          >
+            {s.label} <span className={`ml-1 ${s.color}`}>({s.count})</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/30 border-b border-border">
+                <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((o) => (
+                <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                  <td className="p-4 font-medium text-primary">{o.id}</td>
+                  <td className="p-4 text-foreground">{o.customer}</td>
+                  <td className="p-4 text-muted-foreground">{o.items}</td>
+                  <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
+                  <td className="p-4">
+                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
+                      {statusIcon(o.status)} {o.status}
+                    </span>
+                  </td>
+                  <td className="p-4 text-muted-foreground">{o.date}</td>
+                  <td className="p-4">
+                    <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Analytics Tab ──
+export const AnalyticsTab = () => {
+  const ordersByMonth = revenueData.map(d => ({ month: d.month, orders: d.orders }));
+
+  return (
+    <div className="space-y-6">
+      <div className="grid lg:grid-cols-2 gap-4">
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Monthly Orders</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={ordersByMonth}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240, 4%, 83%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" />
+              <Tooltip />
+              <Bar dataKey="orders" fill="hsl(333, 71%, 50%)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Revenue Trend</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={revenueData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240, 4%, 83%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(240, 5%, 10%)" tickFormatter={v => `${v / 1000000}M`} />
+              <Tooltip formatter={(v: number) => [`RWF ${v.toLocaleString()}`, "Revenue"]} />
+              <Line type="monotone" dataKey="revenue" stroke="hsl(333, 71%, 50%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(333, 71%, 50%)" }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-2">Top Selling Products</h3>
+          <div className="space-y-3 mt-4">
+            {products.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
+              <div key={p.id} className="flex items-center gap-3">
+                <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
+                <img src={p.image} alt={p.name} className="w-8 h-8 rounded-lg object-cover" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">{p.reviewCount} reviews</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-2">Category Performance</h3>
+          <div className="space-y-3 mt-4">
+            {categoryRevenue.map((c, i) => (
+              <div key={c.name} className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground">{c.name}</span>
+                  <span className="text-muted-foreground">{c.value}%</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${c.value}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-2">Quick Stats</h3>
+          <div className="space-y-4 mt-4">
+            {[
+              { label: "Conversion Rate", value: "3.2%", sub: "+0.4% from last month" },
+              { label: "Avg Items Per Order", value: "2.8", sub: "Across all categories" },
+              { label: "Return Rate", value: "1.2%", sub: "Below industry avg" },
+              { label: "Customer Satisfaction", value: "4.7/5", sub: "Based on 342 reviews" },
+            ].map(s => (
+              <div key={s.label}>
+                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-lg font-bold text-foreground">{s.value}</p>
+                <p className="text-[11px] text-muted-foreground">{s.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Customers Tab ──
+export const CustomersTab = () => {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Customers", value: "342", icon: Users },
+          { label: "New This Month", value: "28", icon: ArrowUpRight },
+          { label: "Repeat Rate", value: "64%", icon: TrendingUp },
+          { label: "Avg Lifetime Value", value: "RWF 185K", icon: DollarSign },
+        ].map(s => (
+          <div key={s.label} className="bg-card rounded-xl border border-border p-5">
+            <s.icon className="w-5 h-5 text-primary mb-2" />
+            <p className="text-xl font-bold text-foreground">{s.value}</p>
+            <p className="text-xs text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="p-5 border-b border-border">
+          <h3 className="font-semibold text-foreground">All Customers</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/30 border-b border-border">
+                <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Orders</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Total Spent</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topCustomers.map(c => (
+                <tr key={c.name} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                        {c.avatar}
+                      </div>
+                      <span className="font-medium text-foreground">{c.name}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-muted-foreground">{c.orders}</td>
+                  <td className="p-4 text-foreground font-medium">{formatPrice(c.spent)}</td>
+                  <td className="p-4">
+                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700">Active</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
