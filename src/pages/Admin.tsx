@@ -1,25 +1,27 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
-import { products } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import {
-  Package, ShoppingCart, Users, TrendingUp, LogOut, Flower2,
-  LayoutDashboard, Tag, BarChart3, Settings, Home
+  Flower2, LogOut, Home, LayoutDashboard, Package, ShoppingCart,
+  Users, BarChart3, Settings, Menu, X, ChevronRight
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { OverviewTab, ProductsTab, OrdersTab, AnalyticsTab, CustomersTab } from "@/components/admin/AdminTabs";
 
-const stats = [
-  { label: "Total Products", value: products.length, icon: Package, color: "bg-primary/10 text-primary" },
-  { label: "Categories", value: [...new Set(products.map(p => p.category))].length, icon: Tag, color: "bg-accent text-accent-foreground" },
-  { label: "Avg Price", value: `RWF ${Math.round(products.reduce((a, b) => a + b.price, 0) / products.length).toLocaleString()}`, icon: TrendingUp, color: "bg-secondary/20 text-secondary" },
-  { label: "In Stock", value: products.filter(p => p.inStock !== false).length, icon: ShoppingCart, color: "bg-primary/10 text-primary" },
+const sidebarItems = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "products", label: "Products", icon: Package },
+  { id: "orders", label: "Orders", icon: ShoppingCart },
+  { id: "customers", label: "Customers", icon: Users },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 const Admin = () => {
   const { isAdmin, logout } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) navigate("/account");
@@ -27,115 +29,141 @@ const Admin = () => {
 
   if (!isAdmin) return null;
 
-  const categories = [...new Set(products.map(p => p.category))];
+  const renderTab = () => {
+    switch (activeTab) {
+      case "overview": return <OverviewTab />;
+      case "products": return <ProductsTab />;
+      case "orders": return <OrdersTab />;
+      case "customers": return <CustomersTab />;
+      case "analytics": return <AnalyticsTab />;
+      default: return <OverviewTab />;
+    }
+  };
+
+  const activeLabel = sidebarItems.find(i => i.id === activeTab)?.label || "Overview";
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
-        <div className="container flex items-center justify-between h-14">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Flower2 className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-display text-lg font-bold text-foreground">
-              Flora<span className="text-primary">Belle</span>
-              <span className="text-xs font-normal text-muted-foreground ml-2">Admin</span>
-            </span>
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-60 flex-col bg-card border-r border-border fixed inset-y-0 left-0 z-40">
+        <div className="flex items-center gap-2 px-5 h-14 border-b border-border">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Flower2 className="w-4 h-4 text-primary-foreground" />
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/">
-              <Button variant="ghost" size="sm"><Home className="w-4 h-4 mr-1" /> Store</Button>
-            </Link>
-            <Button variant="ghost" size="sm" onClick={() => { logout(); navigate("/account"); }}>
-              <LogOut className="w-4 h-4 mr-1" /> Logout
-            </Button>
-          </div>
+          <span className="font-display text-lg font-bold text-foreground">
+            Flora<span className="text-primary">Belle</span>
+          </span>
         </div>
-      </header>
-
-      <div className="container py-8">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-display font-bold text-foreground mb-1">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mb-8">Welcome back, Admin</p>
-        </motion.div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-card rounded-xl border border-border p-5"
+        <nav className="flex-1 p-3 space-y-1">
+          {sidebarItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === item.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+              }`}
             >
-              <div className={`w-10 h-10 rounded-lg ${stat.color} flex items-center justify-center mb-3`}>
-                <stat.icon className="w-5 h-5" />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-            </motion.div>
+              <item.icon className="w-4 h-4" />
+              {item.label}
+            </button>
           ))}
+        </nav>
+        <div className="p-3 border-t border-border space-y-1">
+          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors">
+            <Home className="w-4 h-4" /> Back to Store
+          </Link>
+          <button
+            onClick={() => { logout(); navigate("/account"); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
+            <LogOut className="w-4 h-4" /> Logout
+          </button>
         </div>
+      </aside>
 
-        {/* Products by category */}
-        <h2 className="text-lg font-display font-bold text-foreground mb-4">Products by Category</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          {categories.map((cat) => {
-            const catProducts = products.filter(p => p.category === cat);
-            return (
-              <div key={cat} className="bg-card rounded-xl border border-border p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-foreground capitalize">{cat}</h3>
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">{catProducts.length} items</span>
-                </div>
-                <div className="space-y-2">
-                  {catProducts.slice(0, 3).map(p => (
-                    <div key={p.id} className="flex items-center justify-between text-sm">
-                      <span className="text-foreground truncate mr-2">{p.name}</span>
-                      <span className="text-muted-foreground whitespace-nowrap">RWF {p.price.toLocaleString()}</span>
-                    </div>
-                  ))}
-                  {catProducts.length > 3 && (
-                    <p className="text-xs text-muted-foreground">+{catProducts.length - 3} more</p>
-                  )}
-                </div>
+      {/* Mobile sidebar overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+            <motion.aside initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed left-0 top-0 bottom-0 w-64 bg-card z-50 shadow-2xl lg:hidden">
+              <div className="flex items-center justify-between px-5 h-14 border-b border-border">
+                <span className="font-display text-lg font-bold text-foreground">
+                  Flora<span className="text-primary">Belle</span>
+                </span>
+                <button onClick={() => setSidebarOpen(false)}><X className="w-5 h-5 text-foreground" /></button>
               </div>
-            );
-          })}
-        </div>
-
-        {/* All products table */}
-        <h2 className="text-lg font-display font-bold text-foreground mb-4">All Products</h2>
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                    <td className="p-4 font-medium text-foreground">{p.name}</td>
-                    <td className="p-4 text-muted-foreground capitalize">{p.category}</td>
-                    <td className="p-4 text-foreground">RWF {p.price.toLocaleString()}</td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.inStock !== false ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                        {p.inStock !== false ? "In Stock" : "Out of Stock"}
-                      </span>
-                    </td>
-                  </tr>
+              <nav className="p-3 space-y-1">
+                {sidebarItems.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      activeTab === item.id
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
                 ))}
-              </tbody>
-            </table>
+              </nav>
+              <div className="p-3 border-t border-border space-y-1">
+                <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50">
+                  <Home className="w-4 h-4" /> Back to Store
+                </Link>
+                <button onClick={() => { logout(); navigate("/account"); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                  <LogOut className="w-4 h-4" /> Logout
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main content */}
+      <div className="flex-1 lg:ml-60">
+        {/* Top bar */}
+        <header className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b border-border">
+          <div className="flex items-center justify-between h-14 px-4 lg:px-8">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 rounded-lg hover:bg-muted transition-colors">
+                <Menu className="w-5 h-5 text-foreground" />
+              </button>
+              <div className="flex items-center gap-1 text-sm">
+                <span className="text-muted-foreground">Admin</span>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-medium text-foreground">{activeLabel}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                AD
+              </div>
+            </div>
           </div>
-        </div>
+        </header>
+
+        <main className="p-4 lg:p-8">
+          <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+            <h1 className="text-2xl font-display font-bold text-foreground mb-1">{activeLabel}</h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              {activeTab === "overview" && "Your store at a glance"}
+              {activeTab === "products" && "Manage your product catalog"}
+              {activeTab === "orders" && "Track and manage customer orders"}
+              {activeTab === "customers" && "View your customer base"}
+              {activeTab === "analytics" && "Detailed performance insights"}
+            </p>
+            {renderTab()}
+          </motion.div>
+        </main>
       </div>
     </div>
   );
