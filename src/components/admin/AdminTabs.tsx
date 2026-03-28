@@ -509,16 +509,47 @@ export const ProductsTab = () => {
 
 // ── Orders Tab ──
 export const OrdersTab = () => {
+  const { orders, updateOrderStatus } = useOrders();
   const [statusFilter, setStatusFilter] = useState("all");
-  const filtered = statusFilter === "all" ? recentOrders : recentOrders.filter(o => o.status === statusFilter);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+
+  // Combine real orders with sample data for demo
+  const allOrders = [
+    ...orders,
+    ...recentOrders.map(o => ({
+      ...o,
+      email: "",
+      phone: "",
+      recipientName: o.customer,
+      recipientPhone: "",
+      address: "Kigali, Rwanda",
+      city: "Kigali",
+      deliveryDate: o.date,
+      deliveryTime: "morning",
+      paymentMethod: "momo",
+      items: [] as { product: any; quantity: number }[],
+      itemCount: o.items,
+      subtotal: o.total,
+      deliveryFee: 0,
+    })) as Order[],
+  ];
+
+  const filtered = statusFilter === "all" ? allOrders : allOrders.filter(o => o.status === statusFilter);
 
   const orderStats = [
-    { label: "All Orders", count: recentOrders.length, color: "text-foreground" },
-    { label: "Processing", count: recentOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
-    { label: "Shipped", count: recentOrders.filter(o => o.status === "shipped").length, color: "text-blue-600" },
-    { label: "Delivered", count: recentOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
-    { label: "Cancelled", count: recentOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
+    { label: "All Orders", count: allOrders.length, color: "text-foreground" },
+    { label: "Processing", count: allOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
+    { label: "Shipped", count: allOrders.filter(o => o.status === "shipped").length, color: "text-blue-600" },
+    { label: "Delivered", count: allOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
+    { label: "Cancelled", count: allOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
   ];
+
+  const paymentLabel = (m: string) => {
+    if (m === "momo") return "MTN MoMo";
+    if (m === "airtel") return "Airtel Money";
+    if (m === "cod") return "Cash on Delivery";
+    return m;
+  };
 
   return (
     <div className="space-y-4">
@@ -553,11 +584,13 @@ export const OrdersTab = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((o) => (
+              {filtered.length === 0 ? (
+                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No orders found</td></tr>
+              ) : filtered.map((o) => (
                 <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                   <td className="p-4 font-medium text-primary">{o.id}</td>
                   <td className="p-4 text-foreground">{o.customer}</td>
-                  <td className="p-4 text-muted-foreground">{o.items}</td>
+                  <td className="p-4 text-muted-foreground">{o.itemCount}</td>
                   <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
                   <td className="p-4">
                     <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
@@ -566,7 +599,7 @@ export const OrdersTab = () => {
                   </td>
                   <td className="p-4 text-muted-foreground">{o.date}</td>
                   <td className="p-4">
-                    <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                    <button onClick={() => setViewingOrder(o)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                       <Eye className="w-4 h-4" />
                     </button>
                   </td>
@@ -576,6 +609,103 @@ export const OrdersTab = () => {
           </table>
         </div>
       </div>
+
+      {/* Order Detail Dialog */}
+      <Dialog open={!!viewingOrder} onOpenChange={() => setViewingOrder(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order {viewingOrder?.id}</DialogTitle>
+            <DialogDescription>Placed on {viewingOrder?.date}</DialogDescription>
+          </DialogHeader>
+          {viewingOrder && (
+            <div className="space-y-4 py-2">
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <span className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium ${statusColor(viewingOrder.status)}`}>
+                  {statusIcon(viewingOrder.status)} {viewingOrder.status}
+                </span>
+                {viewingOrder.status === "processing" && (
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => { updateOrderStatus(viewingOrder.id, "shipped"); setViewingOrder({ ...viewingOrder, status: "shipped" }); }}>
+                      <Truck className="w-3 h-3 mr-1" /> Mark Shipped
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-red-500 hover:text-red-600" onClick={() => { updateOrderStatus(viewingOrder.id, "cancelled"); setViewingOrder({ ...viewingOrder, status: "cancelled" }); }}>
+                      Cancel
+                    </Button>
+                  </div>
+                )}
+                {viewingOrder.status === "shipped" && (
+                  <Button size="sm" variant="outline" onClick={() => { updateOrderStatus(viewingOrder.id, "delivered"); setViewingOrder({ ...viewingOrder, status: "delivered" }); }}>
+                    <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Delivered
+                  </Button>
+                )}
+              </div>
+
+              {/* Customer Info */}
+              <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm">
+                <h4 className="font-semibold text-foreground">Customer Info</h4>
+                <div className="grid grid-cols-2 gap-1">
+                  <span className="text-muted-foreground">Name:</span>
+                  <span className="text-foreground">{viewingOrder.customer}</span>
+                  {viewingOrder.email && <>
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="text-foreground">{viewingOrder.email}</span>
+                  </>}
+                  {viewingOrder.phone && <>
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="text-foreground">{viewingOrder.phone}</span>
+                  </>}
+                </div>
+              </div>
+
+              {/* Delivery Info */}
+              <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm">
+                <h4 className="font-semibold text-foreground">Delivery Details</h4>
+                <div className="grid grid-cols-2 gap-1">
+                  <span className="text-muted-foreground">Recipient:</span>
+                  <span className="text-foreground">{viewingOrder.recipientName}</span>
+                  <span className="text-muted-foreground">Address:</span>
+                  <span className="text-foreground">{viewingOrder.address}, {viewingOrder.city}</span>
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="text-foreground">{viewingOrder.deliveryDate} ({viewingOrder.deliveryTime})</span>
+                  <span className="text-muted-foreground">Payment:</span>
+                  <span className="text-foreground">{paymentLabel(viewingOrder.paymentMethod)}</span>
+                </div>
+              </div>
+
+              {/* Items */}
+              {viewingOrder.items && viewingOrder.items.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground text-sm">Items ({viewingOrder.itemCount})</h4>
+                  {viewingOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-2 bg-muted/20 rounded-lg">
+                      <img src={item.product.image} alt={item.product.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{item.product.name}</p>
+                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{formatPrice(item.product.price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Totals */}
+              <div className="border-t border-border pt-3 space-y-1 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span><span>{formatPrice(viewingOrder.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Delivery</span><span>{viewingOrder.deliveryFee === 0 ? "Free" : formatPrice(viewingOrder.deliveryFee)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-foreground text-base pt-1">
+                  <span>Total</span><span>{formatPrice(viewingOrder.total)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
