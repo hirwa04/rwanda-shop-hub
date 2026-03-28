@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { products as initialProducts, categories, formatPrice, Product } from "@/data/products";
+import { useOrders, Order } from "@/context/OrderContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
