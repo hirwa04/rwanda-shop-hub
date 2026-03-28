@@ -1,17 +1,23 @@
 import { useState } from "react";
-import { products, categories, formatPrice } from "@/data/products";
-import { motion } from "framer-motion";
+import { products as initialProducts, categories, formatPrice, Product } from "@/data/products";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
   BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
-  XCircle, Truck, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus
+  XCircle, Truck, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
 } from "recharts";
+import { toast } from "sonner";
 
 // Mock data
 const revenueData = [
@@ -83,12 +89,11 @@ export const OverviewTab = () => {
     { label: "Total Revenue", value: `RWF ${(totalRevenue / 1000000).toFixed(1)}M`, change: "+18.2%", up: true, icon: DollarSign },
     { label: "Total Orders", value: totalOrders.toString(), change: "+12.5%", up: true, icon: ShoppingCart },
     { label: "Avg Order Value", value: formatPrice(avgOrderValue), change: "+4.1%", up: true, icon: TrendingUp },
-    { label: "Products", value: products.length.toString(), change: "+6", up: true, icon: Package },
+    { label: "Products", value: initialProducts.length.toString(), change: "+6", up: true, icon: Package },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -108,7 +113,6 @@ export const OverviewTab = () => {
         ))}
       </div>
 
-      {/* Charts row */}
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-4">Revenue Overview</h3>
@@ -150,7 +154,6 @@ export const OverviewTab = () => {
         </div>
       </div>
 
-      {/* Recent orders + top customers */}
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-card rounded-xl border border-border overflow-hidden">
           <div className="p-5 border-b border-border flex items-center justify-between">
@@ -191,7 +194,7 @@ export const OverviewTab = () => {
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-4">Top Customers</h3>
           <div className="space-y-4">
-            {topCustomers.map((c, i) => (
+            {topCustomers.map((c) => (
               <div key={c.name} className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                   {c.avatar}
@@ -210,17 +213,120 @@ export const OverviewTab = () => {
   );
 };
 
-// ── Products Tab ──
+// ── Product Form defaults ──
+const emptyProduct = {
+  name: "",
+  price: 0,
+  originalPrice: undefined as number | undefined,
+  category: "love",
+  flowerType: "Roses",
+  shortDescription: "",
+  description: "",
+  quantity: 50,
+  imageUrl: "",
+};
+
+// ── Products Tab with CRUD ──
 export const ProductsTab = () => {
+  const [productList, setProductList] = useState<Product[]>([...initialProducts]);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
+  const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const allCategories = [...new Set(products.map(p => p.category))];
-  const filtered = products.filter(p => {
+  // Form state
+  const [formData, setFormData] = useState({ ...emptyProduct });
+
+  const allCategories = [...new Set(productList.map(p => p.category))];
+  const filtered = productList.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = catFilter === "all" || p.category === catFilter;
     return matchSearch && matchCat;
   });
+
+  const openAddForm = () => {
+    setEditingProduct(null);
+    setFormData({ ...emptyProduct });
+    setShowForm(true);
+  };
+
+  const openEditForm = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      category: product.category,
+      flowerType: product.flowerType,
+      shortDescription: product.shortDescription,
+      description: product.description,
+      quantity: product.quantity,
+      imageUrl: typeof product.image === "string" ? product.image : "",
+    });
+    setShowForm(true);
+  };
+
+  const handleSave = () => {
+    if (!formData.name.trim() || formData.price <= 0) {
+      toast.error("Please fill in product name and a valid price.");
+      return;
+    }
+
+    if (editingProduct) {
+      // Update existing
+      setProductList(prev =>
+        prev.map(p =>
+          p.id === editingProduct.id
+            ? {
+                ...p,
+                name: formData.name,
+                price: formData.price,
+                originalPrice: formData.originalPrice,
+                category: formData.category,
+                flowerType: formData.flowerType,
+                shortDescription: formData.shortDescription,
+                description: formData.description,
+                quantity: formData.quantity,
+                inStock: formData.quantity > 0,
+              }
+            : p
+        )
+      );
+      toast.success(`"${formData.name}" updated successfully!`);
+    } else {
+      // Add new
+      const newProduct: Product = {
+        id: `custom-${Date.now()}`,
+        name: formData.name,
+        price: formData.price,
+        originalPrice: formData.originalPrice,
+        image: formData.imageUrl || "/placeholder.svg",
+        images: formData.imageUrl ? [formData.imageUrl] : ["/placeholder.svg"],
+        category: formData.category,
+        flowerType: formData.flowerType,
+        rating: 0,
+        reviewCount: 0,
+        inStock: formData.quantity > 0,
+        quantity: formData.quantity,
+        shortDescription: formData.shortDescription,
+        description: formData.description,
+        sizes: [{ label: "Standard", price: formData.price }],
+      };
+      setProductList(prev => [newProduct, ...prev]);
+      toast.success(`"${formData.name}" added successfully!`);
+    }
+
+    setShowForm(false);
+    setEditingProduct(null);
+  };
+
+  const handleDelete = (id: string) => {
+    const product = productList.find(p => p.id === id);
+    setProductList(prev => prev.filter(p => p.id !== id));
+    setDeleteConfirm(null);
+    toast.success(`"${product?.name}" deleted.`);
+  };
 
   return (
     <div className="space-y-4">
@@ -238,7 +344,7 @@ export const ProductsTab = () => {
             <option value="all">All Categories</option>
             {allCategories.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
           </select>
-          <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Add Product</Button>
+          <Button size="sm" onClick={openAddForm}><Plus className="w-4 h-4 mr-1" /> Add Product</Button>
         </div>
       </div>
 
@@ -250,6 +356,7 @@ export const ProductsTab = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Qty</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Rating</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
@@ -269,6 +376,7 @@ export const ProductsTab = () => {
                   </td>
                   <td className="p-4 text-muted-foreground capitalize">{p.category}</td>
                   <td className="p-4 text-foreground font-medium">{formatPrice(p.price)}</td>
+                  <td className="p-4 text-foreground">{p.quantity}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
@@ -283,8 +391,12 @@ export const ProductsTab = () => {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-1">
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Edit className="w-4 h-4" /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => openEditForm(p)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -293,9 +405,104 @@ export const ProductsTab = () => {
           </table>
         </div>
         <div className="p-4 border-t border-border text-xs text-muted-foreground">
-          Showing {filtered.length} of {products.length} products
+          Showing {filtered.length} of {productList.length} products
         </div>
       </div>
+
+      {/* Add/Edit Product Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
+            <DialogDescription>
+              {editingProduct ? "Update the product details below." : "Fill in the details to add a new product."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="prod-name">Product Name *</Label>
+              <Input id="prod-name" placeholder="e.g. Red Rose Bouquet" value={formData.name} onChange={e => setFormData(f => ({ ...f, name: e.target.value }))} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="prod-price">Price (RWF) *</Label>
+                <Input id="prod-price" type="number" min={0} value={formData.price || ""} onChange={e => setFormData(f => ({ ...f, price: Number(e.target.value) }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prod-original-price">Original Price (RWF)</Label>
+                <Input id="prod-original-price" type="number" min={0} placeholder="Optional" value={formData.originalPrice || ""} onChange={e => setFormData(f => ({ ...f, originalPrice: e.target.value ? Number(e.target.value) : undefined }))} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="prod-category">Category</Label>
+                <select
+                  id="prod-category"
+                  value={formData.category}
+                  onChange={e => setFormData(f => ({ ...f, category: e.target.value }))}
+                  className="w-full text-sm border border-border rounded-lg px-3 py-2 bg-background text-foreground outline-none"
+                >
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prod-qty">Quantity *</Label>
+                <Input id="prod-qty" type="number" min={0} value={formData.quantity} onChange={e => setFormData(f => ({ ...f, quantity: Number(e.target.value) }))} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="prod-type">Product Type</Label>
+              <Input id="prod-type" placeholder="e.g. Roses, Whisky, Necklace" value={formData.flowerType} onChange={e => setFormData(f => ({ ...f, flowerType: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="prod-short">Short Description</Label>
+              <Input id="prod-short" placeholder="Brief product summary" value={formData.shortDescription} onChange={e => setFormData(f => ({ ...f, shortDescription: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="prod-desc">Full Description</Label>
+              <Textarea id="prod-desc" placeholder="Detailed product description..." rows={4} value={formData.description} onChange={e => setFormData(f => ({ ...f, description: e.target.value }))} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="prod-img">Image URL</Label>
+              <Input id="prod-img" placeholder="https://example.com/image.jpg" value={formData.imageUrl} onChange={e => setFormData(f => ({ ...f, imageUrl: e.target.value }))} />
+              <p className="text-xs text-muted-foreground">Paste an image URL or leave blank for placeholder.</p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button onClick={handleSave}>
+              <Save className="w-4 h-4 mr-1" />
+              {editingProduct ? "Update Product" : "Add Product"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{productList.find(p => p.id === deleteConfirm)?.name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => deleteConfirm && handleDelete(deleteConfirm)}>
+              <Trash2 className="w-4 h-4 mr-1" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -411,7 +618,7 @@ export const AnalyticsTab = () => {
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-2">Top Selling Products</h3>
           <div className="space-y-3 mt-4">
-            {products.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
+            {initialProducts.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
               <div key={p.id} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
                 <img src={p.image} alt={p.name} className="w-8 h-8 rounded-lg object-cover" />
