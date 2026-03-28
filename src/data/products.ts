@@ -102,7 +102,7 @@ export const productTypes = [
   "Chocolate Cake",
 ];
 
-export const products: Product[] = [
+export let products: Product[] = [
   {
     id: "1",
     name: "Red Rose Romance Bouquet",
