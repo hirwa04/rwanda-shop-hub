@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
   BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
-  XCircle, Truck, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon
+  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -516,7 +516,6 @@ export const OrdersTab = () => {
   const orderStats = [
     { label: "All Orders", count: recentOrders.length, color: "text-foreground" },
     { label: "Processing", count: recentOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
-    { label: "Shipped", count: recentOrders.filter(o => o.status === "shipped").length, color: "text-blue-600" },
     { label: "Delivered", count: recentOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
     { label: "Cancelled", count: recentOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
   ];
