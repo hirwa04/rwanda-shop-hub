@@ -229,7 +229,7 @@ const emptyProduct = {
 // ── Products Tab with CRUD ──
 export const ProductsTab = () => {
   const { productList, setProductList } = useProducts();
-  const [productListLocal] = [productList]; // alias for clarity
+  
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
@@ -549,7 +549,8 @@ export const OrdersTab = () => {
                  <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
                  <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
