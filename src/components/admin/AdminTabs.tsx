@@ -42,14 +42,14 @@ const PIE_COLORS = [
 ];
 
 const recentOrders = [
-  { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", date: "2025-03-26" },
-  { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "shipped", date: "2025-03-26" },
-  { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", date: "2025-03-25" },
-  { id: "ORD-1039", customer: "David Habimana", items: 2, total: 67000, status: "delivered", date: "2025-03-25" },
-  { id: "ORD-1038", customer: "Grace Ingabire", items: 4, total: 115000, status: "delivered", date: "2025-03-24" },
-  { id: "ORD-1037", customer: "Samuel Niyonzima", items: 1, total: 22000, status: "cancelled", date: "2025-03-24" },
-  { id: "ORD-1036", customer: "Diane Mukiza", items: 2, total: 55000, status: "shipped", date: "2025-03-23" },
-  { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", date: "2025-03-23" },
+  { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", paid: true, date: "2025-03-26" },
+  { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "processing", paid: true, date: "2025-03-26" },
+  { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", paid: false, date: "2025-03-25" },
+  { id: "ORD-1039", customer: "David Habimana", items: 2, total: 67000, status: "delivered", paid: true, date: "2025-03-25" },
+  { id: "ORD-1038", customer: "Grace Ingabire", items: 4, total: 115000, status: "delivered", paid: true, date: "2025-03-24" },
+  { id: "ORD-1037", customer: "Samuel Niyonzima", items: 1, total: 22000, status: "cancelled", paid: false, date: "2025-03-24" },
+  { id: "ORD-1036", customer: "Diane Mukiza", items: 2, total: 55000, status: "delivered", paid: true, date: "2025-03-23" },
+  { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", paid: true, date: "2025-03-23" },
 ];
 
 const topCustomers = [
@@ -63,7 +63,6 @@ const topCustomers = [
 const statusIcon = (s: string) => {
   switch (s) {
     case "delivered": return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-    case "shipped": return <Truck className="w-4 h-4 text-blue-500" />;
     case "processing": return <Clock className="w-4 h-4 text-amber-500" />;
     case "cancelled": return <XCircle className="w-4 h-4 text-red-500" />;
     default: return null;
@@ -73,7 +72,6 @@ const statusIcon = (s: string) => {
 const statusColor = (s: string) => {
   switch (s) {
     case "delivered": return "bg-green-100 text-green-700";
-    case "shipped": return "bg-blue-100 text-blue-700";
     case "processing": return "bg-amber-100 text-amber-700";
     case "cancelled": return "bg-red-100 text-red-700";
     default: return "bg-muted text-muted-foreground";
