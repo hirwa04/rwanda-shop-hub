@@ -42,7 +42,7 @@ const PIE_COLORS = [
   "hsl(200, 70%, 50%)", "hsl(150, 60%, 45%)", "hsl(270, 50%, 55%)", "hsl(45, 90%, 55%)"
 ];
 
-const demoOrders = [
+const demoOrders: AdminOrderRow[] = [
   { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", paid: true, date: "2025-03-26" },
   { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "processing", paid: true, date: "2025-03-26" },
   { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", paid: false, date: "2025-03-25" },
@@ -194,7 +194,7 @@ export const OverviewTab = () => {
   const topCustomers = useMemo(() => buildCustomerRows(overviewOrders).slice(0, 5), [overviewOrders]);
   const totalRevenue = overviewOrders.reduce((sum, order) => sum + order.total, 0);
   const totalOrders = overviewOrders.length;
-  const avgOrderValue = Math.round(totalRevenue / totalOrders);
+  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
   const stats = [
     { label: "Total Revenue", value: `RWF ${(totalRevenue / 1000000).toFixed(1)}M`, change: "+18.2%", up: true, icon: DollarSign },
