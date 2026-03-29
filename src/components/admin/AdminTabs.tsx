@@ -546,9 +546,9 @@ export const OrdersTab = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
