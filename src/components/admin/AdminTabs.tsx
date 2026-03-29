@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { categories, formatPrice, Product } from "@/data/products";
 import { useProducts } from "@/context/ProductContext";
+import { type Order, type OrderStatus, useOrders } from "@/context/OrderContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
@@ -41,7 +42,7 @@ const PIE_COLORS = [
   "hsl(200, 70%, 50%)", "hsl(150, 60%, 45%)", "hsl(270, 50%, 55%)", "hsl(45, 90%, 55%)"
 ];
 
-const recentOrders = [
+const demoOrders = [
   { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", paid: true, date: "2025-03-26" },
   { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "processing", paid: true, date: "2025-03-26" },
   { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", paid: false, date: "2025-03-25" },
@@ -52,13 +53,119 @@ const recentOrders = [
   { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", paid: true, date: "2025-03-23" },
 ];
 
-const topCustomers = [
-  { name: "Marie Uwase", orders: 12, spent: 580000, avatar: "MU" },
-  { name: "Alice Kamari", orders: 9, spent: 420000, avatar: "AK" },
-  { name: "Grace Ingabire", orders: 8, spent: 395000, avatar: "GI" },
-  { name: "Jean Mugabo", orders: 7, spent: 310000, avatar: "JM" },
-  { name: "Diane Mukiza", orders: 6, spent: 275000, avatar: "DM" },
-];
+type AdminOrderRow = {
+  id: string;
+  customer: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  address?: string;
+  city?: string;
+  items: number;
+  total: number;
+  status: OrderStatus;
+  paid: boolean;
+  date: string;
+  createdAt?: string;
+  paymentMethod?: string;
+  lineItems?: Array<{
+    name: string;
+    image: string;
+    price: number;
+    quantity: number;
+  }>;
+};
+
+type CustomerRow = {
+  name: string;
+  email?: string;
+  phone?: string;
+  orders: number;
+  spent: number;
+  avatar: string;
+  lastOrderDate: string;
+  status: "New" | "Repeat";
+};
+
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "CU";
+
+const formatOrderDate = (value: string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toISOString().split("T")[0];
+};
+
+const paymentMethodLabel = (value?: string) => {
+  switch (value) {
+    case "momo":
+      return "MTN MoMo";
+    case "airtel":
+      return "Airtel Money";
+    case "cod":
+      return "Cash on Delivery";
+    default:
+      return value || "—";
+  }
+};
+
+const mapOrdersForAdmin = (orders: Order[]): AdminOrderRow[] =>
+  orders.map((order) => ({
+    id: order.id,
+    customer: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    recipientName: order.recipientName,
+    recipientPhone: order.recipientPhone,
+    address: order.address,
+    city: order.city,
+    items: order.itemCount,
+    total: order.total,
+    status: order.status,
+    paid: order.paid,
+    date: formatOrderDate(order.createdAt),
+    createdAt: order.createdAt,
+    paymentMethod: order.paymentMethod,
+    lineItems: order.items,
+  }));
+
+const buildCustomerRows = (orders: AdminOrderRow[]): CustomerRow[] => {
+  const customers = new Map<string, CustomerRow>();
+
+  orders.forEach((order) => {
+    const key = order.customerEmail || `${order.customer}-${order.customerPhone || ""}`;
+    const existing = customers.get(key);
+
+    if (existing) {
+      existing.orders += 1;
+      existing.spent += order.total;
+      if (new Date(order.date).getTime() >= new Date(existing.lastOrderDate).getTime()) {
+        existing.lastOrderDate = order.date;
+      }
+      existing.status = existing.orders > 1 ? "Repeat" : "New";
+      return;
+    }
+
+    customers.set(key, {
+      name: order.customer,
+      email: order.customerEmail,
+      phone: order.customerPhone,
+      orders: 1,
+      spent: order.total,
+      avatar: getInitials(order.customer),
+      lastOrderDate: order.date,
+      status: "New",
+    });
+  });
+
+  return Array.from(customers.values()).sort((a, b) => b.spent - a.spent);
+};
 
 const statusIcon = (s: string) => {
   switch (s) {
@@ -81,8 +188,12 @@ const statusColor = (s: string) => {
 // ── Overview Tab ──
 export const OverviewTab = () => {
   const { productList } = useProducts();
-  const totalRevenue = revenueData.reduce((a, b) => a + b.revenue, 0);
-  const totalOrders = revenueData.reduce((a, b) => a + b.orders, 0);
+  const { orders } = useOrders();
+  const liveOrders = useMemo(() => mapOrdersForAdmin(orders), [orders]);
+  const overviewOrders = liveOrders.length > 0 ? liveOrders : demoOrders;
+  const topCustomers = useMemo(() => buildCustomerRows(overviewOrders).slice(0, 5), [overviewOrders]);
+  const totalRevenue = overviewOrders.reduce((sum, order) => sum + order.total, 0);
+  const totalOrders = overviewOrders.length;
   const avgOrderValue = Math.round(totalRevenue / totalOrders);
 
   const stats = [
@@ -158,7 +269,7 @@ export const OverviewTab = () => {
         <div className="lg:col-span-2 bg-card rounded-xl border border-border overflow-hidden">
           <div className="p-5 border-b border-border flex items-center justify-between">
             <h3 className="font-semibold text-foreground">Recent Orders</h3>
-            <span className="text-xs text-muted-foreground">{recentOrders.length} orders</span>
+            <span className="text-xs text-muted-foreground">{overviewOrders.length} orders</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -172,7 +283,7 @@ export const OverviewTab = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((o) => (
+                {overviewOrders.map((o) => (
                   <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="p-3 font-medium text-primary">{o.id}</td>
                     <td className="p-3 text-foreground">{o.customer}</td>
@@ -510,15 +621,24 @@ export const ProductsTab = () => {
 
 // ── Orders Tab ──
 export const OrdersTab = () => {
+  const { orders, updateOrderStatus } = useOrders();
   const [statusFilter, setStatusFilter] = useState("all");
-  const filtered = statusFilter === "all" ? recentOrders : recentOrders.filter(o => o.status === statusFilter);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const adminOrders = useMemo(() => mapOrdersForAdmin(orders), [orders]);
+  const filtered = statusFilter === "all" ? adminOrders : adminOrders.filter(o => o.status === statusFilter);
+  const selectedOrder = adminOrders.find((order) => order.id === selectedOrderId) || null;
 
   const orderStats = [
-    { label: "All Orders", count: recentOrders.length, color: "text-foreground" },
-    { label: "Processing", count: recentOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
-    { label: "Delivered", count: recentOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
-    { label: "Cancelled", count: recentOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
+    { label: "All Orders", count: adminOrders.length, color: "text-foreground" },
+    { label: "Processing", count: adminOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
+    { label: "Delivered", count: adminOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
+    { label: "Cancelled", count: adminOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
   ];
+
+  const handleStatusChange = (orderId: string, status: OrderStatus) => {
+    updateOrderStatus(orderId, status);
+    toast.success(`Order ${orderId} marked as ${status}.`);
+  };
 
   return (
     <div className="space-y-4">
@@ -540,49 +660,127 @@ export const OrdersTab = () => {
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/30 border-b border-border">
-                <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
-                 <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                 <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
-                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                 <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
-                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((o) => (
-                <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="p-4 font-medium text-primary">{o.id}</td>
-                  <td className="p-4 text-foreground">{o.customer}</td>
-                  <td className="p-4 text-muted-foreground">{o.items}</td>
-                  <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
-                  <td className="p-4">
-                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${o.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                      <CreditCard className="w-3.5 h-3.5" />
-                      {o.paid ? "Paid" : "Unpaid"}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
-                      {statusIcon(o.status)} {o.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-muted-foreground">{o.date}</td>
-                  <td className="p-4">
-                    <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
+          {adminOrders.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No customer orders yet. Orders placed from checkout will appear here.
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/30 border-b border-border">
+                  <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((o) => (
+                  <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                    <td className="p-4 font-medium text-primary">{o.id}</td>
+                    <td className="p-4 text-foreground">{o.customer}</td>
+                    <td className="p-4 text-muted-foreground">{o.items}</td>
+                    <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
+                    <td className="p-4">
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${o.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                        <CreditCard className="w-3.5 h-3.5" />
+                        {o.paid ? "Paid" : "Unpaid"}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
+                        {statusIcon(o.status)} {o.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-muted-foreground">{o.date}</td>
+                    <td className="p-4">
+                      <div className="flex flex-col gap-2 min-w-[170px]">
+                        <Button variant="outline" size="sm" onClick={() => setSelectedOrderId(o.id)}>
+                          <Eye className="w-4 h-4 mr-1" /> View
+                        </Button>
+                        <select
+                          value={o.status}
+                          onChange={(e) => handleStatusChange(o.id, e.target.value as OrderStatus)}
+                          className="w-full text-xs border border-border rounded-lg px-3 py-2 bg-background text-foreground outline-none"
+                        >
+                          <option value="processing">Processing</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
+
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrderId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedOrder?.id}</DialogTitle>
+            <DialogDescription>
+              Review customer details, purchased items, payment, and delivery info.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-5 text-sm">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg border border-border p-4 space-y-1">
+                  <p className="font-medium text-foreground">Customer</p>
+                  <p className="text-muted-foreground">{selectedOrder.customer}</p>
+                  <p className="text-muted-foreground">{selectedOrder.customerEmail || "No email"}</p>
+                  <p className="text-muted-foreground">{selectedOrder.customerPhone || "No phone"}</p>
+                </div>
+                <div className="rounded-lg border border-border p-4 space-y-1">
+                  <p className="font-medium text-foreground">Delivery</p>
+                  <p className="text-muted-foreground">{selectedOrder.recipientName || "—"}</p>
+                  <p className="text-muted-foreground">{selectedOrder.recipientPhone || "—"}</p>
+                  <p className="text-muted-foreground">{selectedOrder.address}, {selectedOrder.city}</p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <div className="flex flex-wrap gap-2 justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Payment</p>
+                    <p className="text-muted-foreground">{paymentMethodLabel(selectedOrder.paymentMethod)}</p>
+                  </div>
+                  <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${selectedOrder.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    <CreditCard className="w-3.5 h-3.5" />
+                    {selectedOrder.paid ? "Paid" : "Unpaid"}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedOrder.lineItems?.map((item) => (
+                    <div key={`${selectedOrder.id}-${item.name}`} className="flex items-center gap-3">
+                      <img src={item.image} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{item.name}</p>
+                        <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-medium text-foreground">{formatPrice(item.price * item.quantity)}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-border pt-3 flex items-center justify-between font-semibold text-foreground">
+                  <span>Total</span>
+                  <span>{formatPrice(selectedOrder.total)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -680,14 +878,22 @@ export const AnalyticsTab = () => {
 
 // ── Customers Tab ──
 export const CustomersTab = () => {
+  const { orders } = useOrders();
+  const customerOrders = useMemo(() => mapOrdersForAdmin(orders), [orders]);
+  const customers = useMemo(() => buildCustomerRows(customerOrders), [customerOrders]);
+  const repeatCustomers = customers.filter((customer) => customer.orders > 1).length;
+  const avgLifetimeValue = customers.length
+    ? Math.round(customers.reduce((sum, customer) => sum + customer.spent, 0) / customers.length)
+    : 0;
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Customers", value: "342", icon: Users },
-          { label: "New This Month", value: "28", icon: ArrowUpRight },
-          { label: "Repeat Rate", value: "64%", icon: TrendingUp },
-          { label: "Avg Lifetime Value", value: "RWF 185K", icon: DollarSign },
+          { label: "Total Customers", value: customers.length.toString(), icon: Users },
+          { label: "New This Month", value: customers.filter((customer) => customer.status === "New").length.toString(), icon: ArrowUpRight },
+          { label: "Repeat Rate", value: customers.length ? `${Math.round((repeatCustomers / customers.length) * 100)}%` : "0%", icon: TrendingUp },
+          { label: "Avg Lifetime Value", value: customers.length ? formatPrice(avgLifetimeValue) : formatPrice(0), icon: DollarSign },
         ].map(s => (
           <div key={s.label} className="bg-card rounded-xl border border-border p-5">
             <s.icon className="w-5 h-5 text-primary mb-2" />
@@ -702,35 +908,52 @@ export const CustomersTab = () => {
           <h3 className="font-semibold text-foreground">All Customers</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-muted/30 border-b border-border">
-                <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Orders</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Total Spent</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topCustomers.map(c => (
-                <tr key={c.name} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                        {c.avatar}
-                      </div>
-                      <span className="font-medium text-foreground">{c.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-muted-foreground">{c.orders}</td>
-                  <td className="p-4 text-foreground font-medium">{formatPrice(c.spent)}</td>
-                  <td className="p-4">
-                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700">Active</span>
-                  </td>
+          {customers.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No customers yet. Once someone completes checkout, they will appear here.
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/30 border-b border-border">
+                  <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Contact</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Orders</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Total Spent</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Last Order</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {customers.map(c => (
+                  <tr key={`${c.name}-${c.email || c.phone}`} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                          {c.avatar}
+                        </div>
+                        <span className="font-medium text-foreground">{c.name}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-muted-foreground">
+                      <div className="space-y-1">
+                        <p>{c.email || "No email"}</p>
+                        <p>{c.phone || "No phone"}</p>
+                      </div>
+                    </td>
+                    <td className="p-4 text-muted-foreground">{c.orders}</td>
+                    <td className="p-4 text-foreground font-medium">{formatPrice(c.spent)}</td>
+                    <td className="p-4 text-muted-foreground">{c.lastOrderDate}</td>
+                    <td className="p-4">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${c.status === "Repeat" ? "bg-primary/10 text-primary" : "bg-accent/20 text-accent-foreground"}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
