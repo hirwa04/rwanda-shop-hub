@@ -583,6 +583,7 @@ export const OrdersTab = () => {
 
 // ── Analytics Tab ──
 export const AnalyticsTab = () => {
+  const { productList } = useProducts();
   const ordersByMonth = revenueData.map(d => ({ month: d.month, orders: d.orders }));
 
   return (
