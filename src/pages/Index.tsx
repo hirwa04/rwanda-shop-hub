@@ -14,6 +14,10 @@ const testimonials = [
 ];
 
 const Index = () => {
+  const { productList: products } = useProducts();
+  const bestSellers = products.filter((p) => p.badge === "Best Seller" || p.badge === "Popular").slice(0, 4);
+  const newArrivals = products.filter((p) => p.badge === "New" || p.badge === "Premium").slice(0, 4);
+  const sweetTreats = products.filter((p) => p.category === "cupcakes" || p.category === "cakes");
   return (
     <Layout>
       {/* Hero */}
