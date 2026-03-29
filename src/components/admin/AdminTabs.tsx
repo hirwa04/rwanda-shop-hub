@@ -560,6 +560,12 @@ export const OrdersTab = () => {
                   <td className="p-4 text-muted-foreground">{o.items}</td>
                   <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
                   <td className="p-4">
+                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${o.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      <CreditCard className="w-3.5 h-3.5" />
+                      {o.paid ? "Paid" : "Unpaid"}
+                    </span>
+                  </td>
+                  <td className="p-4">
                     <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
                       {statusIcon(o.status)} {o.status}
                     </span>
