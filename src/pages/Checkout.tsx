@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check, ArrowLeft, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useCart } from "@/context/CartContext";
+import { useOrders } from "@/context/OrderContext";
 import { formatPrice } from "@/data/products";
 import { toast } from "sonner";
 
@@ -11,6 +12,7 @@ const steps = ["Customer Info", "Delivery", "Payment", "Review"];
 
 const Checkout = () => {
   const { items, subtotal, deliveryFee, total, clearCart, itemCount } = useCart();
+  const { addOrder } = useOrders();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
 
@@ -41,6 +43,26 @@ const Checkout = () => {
   }
 
   const handlePlaceOrder = () => {
+    const paid = form.paymentMethod !== "cod";
+
+    addOrder({
+      customerName: form.name,
+      customerEmail: form.email,
+      customerPhone: form.phone,
+      recipientName: form.recipientName,
+      recipientPhone: form.recipientPhone,
+      address: form.address,
+      city: form.city,
+      deliveryDate: form.deliveryDate,
+      deliveryTime: form.deliveryTime,
+      paymentMethod: form.paymentMethod as "momo" | "airtel" | "cod",
+      paid,
+      subtotal,
+      deliveryFee,
+      total,
+      items,
+    });
+
     toast.success("Order placed successfully! 🌸 We'll deliver your flowers with love.");
     clearCart();
     navigate("/");
