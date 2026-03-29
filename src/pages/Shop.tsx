@@ -4,7 +4,8 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
-import { products, categories, flowerTypes, productTypes } from "@/data/products";
+import { categories, flowerTypes } from "@/data/products";
+import { useProducts } from "@/context/ProductContext";
 
 const sortOptions = [
   { value: "default", label: "Default" },
@@ -19,6 +20,7 @@ const Shop = () => {
   const activeCategory = searchParams.get("category") || "";
   const [activeFlowerType, setActiveFlowerType] = useState("");
   const [sort, setSort] = useState("default");
+  const { productList: products } = useProducts();
 
   const filtered = useMemo(() => {
     let result = [...products];
