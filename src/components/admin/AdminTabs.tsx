@@ -80,6 +80,7 @@ const statusColor = (s: string) => {
 
 // ── Overview Tab ──
 export const OverviewTab = () => {
+  const { productList } = useProducts();
   const totalRevenue = revenueData.reduce((a, b) => a + b.revenue, 0);
   const totalOrders = revenueData.reduce((a, b) => a + b.orders, 0);
   const avgOrderValue = Math.round(totalRevenue / totalOrders);
@@ -88,7 +89,7 @@ export const OverviewTab = () => {
     { label: "Total Revenue", value: `RWF ${(totalRevenue / 1000000).toFixed(1)}M`, change: "+18.2%", up: true, icon: DollarSign },
     { label: "Total Orders", value: totalOrders.toString(), change: "+12.5%", up: true, icon: ShoppingCart },
     { label: "Avg Order Value", value: formatPrice(avgOrderValue), change: "+4.1%", up: true, icon: TrendingUp },
-    { label: "Products", value: initialProducts.length.toString(), change: "+6", up: true, icon: Package },
+    { label: "Products", value: productList.length.toString(), change: "+6", up: true, icon: Package },
   ];
 
   return (
@@ -227,7 +228,8 @@ const emptyProduct = {
 
 // ── Products Tab with CRUD ──
 export const ProductsTab = () => {
-  const [productList, setProductList] = useState<Product[]>([...initialProducts]);
+  const { productList, setProductList } = useProducts();
+  const [productListLocal] = [productList]; // alias for clarity
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
@@ -617,7 +619,7 @@ export const AnalyticsTab = () => {
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-2">Top Selling Products</h3>
           <div className="space-y-3 mt-4">
-            {initialProducts.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
+            {productList.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
               <div key={p.id} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
                 <img src={p.image} alt={p.name} className="w-8 h-8 rounded-lg object-cover" />
