@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { products as initialProducts, categories, formatPrice, Product } from "@/data/products";
+import { categories, formatPrice, Product } from "@/data/products";
+import { useProducts } from "@/context/ProductContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
   BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
-  XCircle, Truck, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon
+  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,14 +42,14 @@ const PIE_COLORS = [
 ];
 
 const recentOrders = [
-  { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", date: "2025-03-26" },
-  { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "shipped", date: "2025-03-26" },
-  { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", date: "2025-03-25" },
-  { id: "ORD-1039", customer: "David Habimana", items: 2, total: 67000, status: "delivered", date: "2025-03-25" },
-  { id: "ORD-1038", customer: "Grace Ingabire", items: 4, total: 115000, status: "delivered", date: "2025-03-24" },
-  { id: "ORD-1037", customer: "Samuel Niyonzima", items: 1, total: 22000, status: "cancelled", date: "2025-03-24" },
-  { id: "ORD-1036", customer: "Diane Mukiza", items: 2, total: 55000, status: "shipped", date: "2025-03-23" },
-  { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", date: "2025-03-23" },
+  { id: "ORD-1042", customer: "Marie Uwase", items: 3, total: 85000, status: "delivered", paid: true, date: "2025-03-26" },
+  { id: "ORD-1041", customer: "Jean Mugabo", items: 1, total: 35000, status: "processing", paid: true, date: "2025-03-26" },
+  { id: "ORD-1040", customer: "Alice Kamari", items: 5, total: 142000, status: "processing", paid: false, date: "2025-03-25" },
+  { id: "ORD-1039", customer: "David Habimana", items: 2, total: 67000, status: "delivered", paid: true, date: "2025-03-25" },
+  { id: "ORD-1038", customer: "Grace Ingabire", items: 4, total: 115000, status: "delivered", paid: true, date: "2025-03-24" },
+  { id: "ORD-1037", customer: "Samuel Niyonzima", items: 1, total: 22000, status: "cancelled", paid: false, date: "2025-03-24" },
+  { id: "ORD-1036", customer: "Diane Mukiza", items: 2, total: 55000, status: "delivered", paid: true, date: "2025-03-23" },
+  { id: "ORD-1035", customer: "Patrick Ndayisaba", items: 3, total: 98000, status: "delivered", paid: true, date: "2025-03-23" },
 ];
 
 const topCustomers = [
@@ -62,7 +63,6 @@ const topCustomers = [
 const statusIcon = (s: string) => {
   switch (s) {
     case "delivered": return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-    case "shipped": return <Truck className="w-4 h-4 text-blue-500" />;
     case "processing": return <Clock className="w-4 h-4 text-amber-500" />;
     case "cancelled": return <XCircle className="w-4 h-4 text-red-500" />;
     default: return null;
@@ -72,7 +72,6 @@ const statusIcon = (s: string) => {
 const statusColor = (s: string) => {
   switch (s) {
     case "delivered": return "bg-green-100 text-green-700";
-    case "shipped": return "bg-blue-100 text-blue-700";
     case "processing": return "bg-amber-100 text-amber-700";
     case "cancelled": return "bg-red-100 text-red-700";
     default: return "bg-muted text-muted-foreground";
@@ -81,6 +80,7 @@ const statusColor = (s: string) => {
 
 // ── Overview Tab ──
 export const OverviewTab = () => {
+  const { productList } = useProducts();
   const totalRevenue = revenueData.reduce((a, b) => a + b.revenue, 0);
   const totalOrders = revenueData.reduce((a, b) => a + b.orders, 0);
   const avgOrderValue = Math.round(totalRevenue / totalOrders);
@@ -89,7 +89,7 @@ export const OverviewTab = () => {
     { label: "Total Revenue", value: `RWF ${(totalRevenue / 1000000).toFixed(1)}M`, change: "+18.2%", up: true, icon: DollarSign },
     { label: "Total Orders", value: totalOrders.toString(), change: "+12.5%", up: true, icon: ShoppingCart },
     { label: "Avg Order Value", value: formatPrice(avgOrderValue), change: "+4.1%", up: true, icon: TrendingUp },
-    { label: "Products", value: initialProducts.length.toString(), change: "+6", up: true, icon: Package },
+    { label: "Products", value: productList.length.toString(), change: "+6", up: true, icon: Package },
   ];
 
   return (
@@ -228,7 +228,8 @@ const emptyProduct = {
 
 // ── Products Tab with CRUD ──
 export const ProductsTab = () => {
-  const [productList, setProductList] = useState<Product[]>([...initialProducts]);
+  const { productList, setProductList } = useProducts();
+  
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
@@ -515,7 +516,6 @@ export const OrdersTab = () => {
   const orderStats = [
     { label: "All Orders", count: recentOrders.length, color: "text-foreground" },
     { label: "Processing", count: recentOrders.filter(o => o.status === "processing").length, color: "text-amber-600" },
-    { label: "Shipped", count: recentOrders.filter(o => o.status === "shipped").length, color: "text-blue-600" },
     { label: "Delivered", count: recentOrders.filter(o => o.status === "delivered").length, color: "text-green-600" },
     { label: "Cancelled", count: recentOrders.filter(o => o.status === "cancelled").length, color: "text-red-500" },
   ];
@@ -546,10 +546,11 @@ export const OrdersTab = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Order ID</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -559,6 +560,12 @@ export const OrdersTab = () => {
                   <td className="p-4 text-foreground">{o.customer}</td>
                   <td className="p-4 text-muted-foreground">{o.items}</td>
                   <td className="p-4 text-foreground font-medium">{formatPrice(o.total)}</td>
+                  <td className="p-4">
+                    <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${o.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      <CreditCard className="w-3.5 h-3.5" />
+                      {o.paid ? "Paid" : "Unpaid"}
+                    </span>
+                  </td>
                   <td className="p-4">
                     <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColor(o.status)}`}>
                       {statusIcon(o.status)} {o.status}
@@ -582,6 +589,7 @@ export const OrdersTab = () => {
 
 // ── Analytics Tab ──
 export const AnalyticsTab = () => {
+  const { productList } = useProducts();
   const ordersByMonth = revenueData.map(d => ({ month: d.month, orders: d.orders }));
 
   return (
@@ -618,7 +626,7 @@ export const AnalyticsTab = () => {
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-2">Top Selling Products</h3>
           <div className="space-y-3 mt-4">
-            {initialProducts.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
+            {productList.sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5).map((p, i) => (
               <div key={p.id} className="flex items-center gap-3">
                 <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
                 <img src={p.image} alt={p.name} className="w-8 h-8 rounded-lg object-cover" />

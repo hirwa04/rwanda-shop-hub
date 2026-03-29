@@ -4,12 +4,14 @@ import { Star, ShoppingCart, Heart, Minus, Plus, Truck, Shield, MessageSquare, C
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
-import { products, formatPrice } from "@/data/products";
+import { formatPrice } from "@/data/products";
+import { useProducts } from "@/context/ProductContext";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { productList: products } = useProducts();
   const product = products.find((p) => p.id === id);
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);

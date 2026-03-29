@@ -3,12 +3,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, Truck, Shield, Clock, Star, Mail, Flower2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/context/ProductContext";
 import heroBanner from "@/assets/hero-banner.jpg";
-
-const bestSellers = products.filter((p) => p.badge === "Best Seller" || p.badge === "Popular").slice(0, 4);
-const newArrivals = products.filter((p) => p.badge === "New" || p.badge === "Premium").slice(0, 4);
-const sweetTreats = products.filter((p) => p.category === "cupcakes" || p.category === "cakes");
 
 const testimonials = [
   { name: "Marie L.", text: "The roses were absolutely stunning! Delivered fresh and on time. My wife loved them.", rating: 5 },
@@ -17,6 +14,10 @@ const testimonials = [
 ];
 
 const Index = () => {
+  const { productList: products } = useProducts();
+  const bestSellers = products.filter((p) => p.badge === "Best Seller" || p.badge === "Popular").slice(0, 4);
+  const newArrivals = products.filter((p) => p.badge === "New" || p.badge === "Premium").slice(0, 4);
+  const sweetTreats = products.filter((p) => p.category === "cupcakes" || p.category === "cakes");
   return (
     <Layout>
       {/* Hero */}
