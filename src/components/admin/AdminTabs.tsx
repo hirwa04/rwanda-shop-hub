@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
   BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
-  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard
+  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
