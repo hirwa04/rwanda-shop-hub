@@ -7,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import { formatPrice } from "@/data/products";
 import { useProducts } from "@/context/ProductContext";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { toast } from "sonner";
 
 const ProductDetail = () => {
@@ -14,6 +15,7 @@ const ProductDetail = () => {
   const { productList: products } = useProducts();
   const product = products.find((p) => p.id === id);
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
@@ -31,15 +33,15 @@ const ProductDetail = () => {
     );
   }
 
+  const inWishlist = isInWishlist(product.id);
   const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
   const currentPrice = product.sizes[selectedSize]?.price || product.price;
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart({ ...product, personalMessage: customMessage }, quantity);
     toast.success(`${product.name} added to cart`);
   };
 
-  // Get minimum date (today)
   const today = new Date().toISOString().split("T")[0];
 
   return (
@@ -54,7 +56,6 @@ const ProductDetail = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Images */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="aspect-square rounded-xl overflow-hidden bg-secondary mb-3">
               <img src={product.images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
@@ -74,7 +75,6 @@ const ProductDetail = () => {
             )}
           </motion.div>
 
-          {/* Details */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             {product.badge && (
               <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
@@ -105,7 +105,6 @@ const ProductDetail = () => {
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">{product.description}</p>
 
-            {/* Size selector */}
             {product.sizes.length > 0 && (
               <div className="mb-5">
                 <label className="text-sm font-semibold text-foreground mb-2 block">Size</label>
@@ -127,23 +126,21 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Custom message */}
             <div className="mb-5">
               <label className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                <MessageSquare className="w-4 h-4 text-primary" /> Add a Personal Message
+                <MessageSquare className="w-4 h-4 text-primary" /> Add a Personal Message (Card)
               </label>
               <textarea
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
-                placeholder="Write your message here (e.g., Happy Birthday! With love...)"
+                placeholder="Write your message here (e.g., Happy Birthday! With love...) — This message will be written on a card and sent with your order."
                 rows={3}
                 maxLength={200}
                 className="w-full px-4 py-3 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 text-sm border border-border resize-none"
               />
-              <p className="text-xs text-muted-foreground mt-1">{customMessage.length}/200 characters</p>
+              <p className="text-xs text-muted-foreground mt-1">{customMessage.length}/200 characters · This message will be printed on a card included with your delivery</p>
             </div>
 
-            {/* Delivery date */}
             <div className="mb-6">
               <label className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-primary" /> Preferred Delivery Date
@@ -157,7 +154,6 @@ const ProductDetail = () => {
               />
             </div>
 
-            {/* Quantity + Add to cart */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <div className="flex items-center border border-border rounded-lg">
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors text-foreground">
@@ -175,12 +171,21 @@ const ProductDetail = () => {
               >
                 <ShoppingCart className="w-4 h-4" /> Add to Cart
               </button>
-              <button className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-lg hover:bg-secondary transition-colors text-foreground text-sm">
-                <Heart className="w-4 h-4" /> Wishlist
+              <button
+                onClick={() => {
+                  toggleWishlist(product);
+                  toast.success(inWishlist ? "Removed from wishlist" : "Added to wishlist ❤️");
+                }}
+                className={`inline-flex items-center justify-center gap-2 px-4 py-3 border rounded-lg transition-colors text-sm ${
+                  inWishlist
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:bg-secondary text-foreground"
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${inWishlist ? "fill-primary" : ""}`} /> {inWishlist ? "Wishlisted" : "Wishlist"}
               </button>
             </div>
 
-            {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { icon: Truck, text: "Same-day delivery" },
