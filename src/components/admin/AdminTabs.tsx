@@ -390,7 +390,7 @@ export const ProductsTab = () => {
     }
 
     if (editingProduct) {
-      // Update existing
+      const imageUrl = formData.imagePreview || editingProduct.image;
       setProductList(prev =>
         prev.map(p =>
           p.id === editingProduct.id
@@ -405,6 +405,8 @@ export const ProductsTab = () => {
                 description: formData.description,
                 quantity: formData.quantity,
                 inStock: formData.quantity > 0,
+                image: imageUrl,
+                images: [imageUrl],
               }
             : p
         )
