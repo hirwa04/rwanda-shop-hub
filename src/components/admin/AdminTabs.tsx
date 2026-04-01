@@ -783,6 +783,16 @@ export const OrdersTab = () => {
                   </span>
                 </div>
 
+                {selectedOrder.personalMessage && (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-1">
+                    <p className="font-medium text-foreground flex items-center gap-1.5 text-xs">
+                      <MessageSquare className="w-3.5 h-3.5 text-primary" /> Personal Card Message
+                    </p>
+                    <p className="text-sm text-foreground italic">"{selectedOrder.personalMessage}"</p>
+                    <p className="text-[11px] text-muted-foreground">⚠️ Please write this message on a card and include it with the delivery.</p>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   {selectedOrder.lineItems?.map((item) => (
                     <div key={`${selectedOrder.id}-${item.name}`} className="flex items-center gap-3">
