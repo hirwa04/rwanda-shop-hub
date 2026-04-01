@@ -411,14 +411,14 @@ export const ProductsTab = () => {
       );
       toast.success(`"${formData.name}" updated successfully!`);
     } else {
-      // Add new
+      const imageUrl = formData.imagePreview || "/placeholder.svg";
       const newProduct: Product = {
         id: `custom-${Date.now()}`,
         name: formData.name,
         price: formData.price,
         originalPrice: formData.originalPrice,
-        image: formData.imageUrl || "/placeholder.svg",
-        images: formData.imageUrl ? [formData.imageUrl] : ["/placeholder.svg"],
+        image: imageUrl,
+        images: [imageUrl],
         category: formData.category,
         flowerType: formData.flowerType,
         rating: 0,
