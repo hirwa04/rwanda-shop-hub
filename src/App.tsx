@@ -44,6 +44,7 @@ const App = () => (
                   </Routes>
                 </BrowserRouter>
               </CartProvider>
+              </WishlistProvider>
             </OrderProvider>
         </ProductProvider>
       </AuthProvider>
