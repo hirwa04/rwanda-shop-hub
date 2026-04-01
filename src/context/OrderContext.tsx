@@ -51,6 +51,7 @@ interface CreateOrderInput {
   deliveryFee: number;
   total: number;
   items: CartItem[];
+  personalMessage?: string;
 }
 
 interface OrderContextType {
