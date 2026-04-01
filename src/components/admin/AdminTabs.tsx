@@ -377,7 +377,8 @@ export const ProductsTab = () => {
       shortDescription: product.shortDescription,
       description: product.description,
       quantity: product.quantity,
-      imageUrl: typeof product.image === "string" ? product.image : "",
+      imageFile: null,
+      imagePreview: typeof product.image === "string" ? product.image : "",
     });
     setShowForm(true);
   };
