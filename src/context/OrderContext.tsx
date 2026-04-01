@@ -112,6 +112,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
           price: item.product.price,
           quantity: item.quantity,
         })),
+        personalMessage: input.personalMessage || "",
         createdAt: new Date().toISOString(),
       };
 

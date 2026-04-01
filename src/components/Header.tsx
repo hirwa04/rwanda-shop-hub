@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, Search, Menu, X, Heart, User, Home, Grid3X3, Flower2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useProducts } from "@/context/ProductContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -14,8 +15,25 @@ const navLinks = [
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { itemCount } = useCart();
+  const { productList } = useProducts();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const searchResults = searchQuery.trim().length > 1
+    ? productList.filter((p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.flowerType.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 6)
+    : [];
+
+  const handleSearchSelect = (productId: string) => {
+    setSearchQuery("");
+    setSearchOpen(false);
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <>
@@ -79,11 +97,45 @@ const Header = () => {
         <AnimatePresence>
           {searchOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-border overflow-hidden">
-              <div className="container py-3">
+              <div className="container py-3 relative">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input type="text" placeholder="Search flowers, bouquets, occasions..." className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 text-sm" autoFocus />
+                  <input
+                    type="text"
+                    placeholder="Search flowers, bouquets, occasions..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && searchResults.length > 0) {
+                        handleSearchSelect(searchResults[0].id);
+                      }
+                    }}
+                  />
                 </div>
+                {searchResults.length > 0 && (
+                  <div className="absolute left-0 right-0 mx-4 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+                    {searchResults.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => handleSearchSelect(p.id)}
+                        className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{p.category} · {p.flowerType}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {searchQuery.trim().length > 1 && searchResults.length === 0 && (
+                  <div className="absolute left-0 right-0 mx-4 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 p-4 text-center text-sm text-muted-foreground">
+                    No products found for "{searchQuery}"
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
