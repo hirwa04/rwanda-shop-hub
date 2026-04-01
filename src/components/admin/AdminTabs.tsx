@@ -336,7 +336,8 @@ const emptyProduct = {
   shortDescription: "",
   description: "",
   quantity: 50,
-  imageUrl: "",
+  imageFile: null as File | null,
+  imagePreview: "",
 };
 
 // ── Products Tab with CRUD ──
