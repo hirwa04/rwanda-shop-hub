@@ -133,6 +133,7 @@ const mapOrdersForAdmin = (orders: Order[]): AdminOrderRow[] =>
     date: formatOrderDate(order.createdAt),
     createdAt: order.createdAt,
     paymentMethod: order.paymentMethod,
+    personalMessage: order.personalMessage,
     lineItems: order.items,
   }));
 
