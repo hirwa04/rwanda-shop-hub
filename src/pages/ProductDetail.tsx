@@ -38,7 +38,7 @@ const ProductDetail = () => {
   const currentPrice = product.sizes[selectedSize]?.price || product.price;
 
   const handleAddToCart = () => {
-    addToCart({ ...product, personalMessage: customMessage }, quantity);
+    addToCart(product, quantity, customMessage || undefined);
     toast.success(`${product.name} added to cart`);
   };
 
