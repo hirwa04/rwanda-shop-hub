@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { ProductProvider } from "@/context/ProductContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { OrderProvider } from "@/context/OrderContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -25,6 +26,7 @@ const App = () => (
       <AuthProvider>
         <ProductProvider>
             <OrderProvider>
+              <WishlistProvider>
               <CartProvider>
                 <Toaster />
                 <Sonner />
@@ -42,6 +44,7 @@ const App = () => (
                   </Routes>
                 </BrowserRouter>
               </CartProvider>
+              </WishlistProvider>
             </OrderProvider>
         </ProductProvider>
       </AuthProvider>

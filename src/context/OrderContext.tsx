@@ -31,6 +31,7 @@ export interface Order {
   deliveryFee: number;
   total: number;
   items: OrderItemSnapshot[];
+  personalMessage?: string;
   createdAt: string;
 }
 
@@ -50,6 +51,7 @@ interface CreateOrderInput {
   deliveryFee: number;
   total: number;
   items: CartItem[];
+  personalMessage?: string;
 }
 
 interface OrderContextType {
@@ -110,6 +112,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
           price: item.product.price,
           quantity: item.quantity,
         })),
+        personalMessage: input.personalMessage || "",
         createdAt: new Date().toISOString(),
       };
 

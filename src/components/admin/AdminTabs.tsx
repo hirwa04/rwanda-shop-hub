@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, ShoppingCart, Users, TrendingUp, DollarSign, Eye,
   BarChart3, Tag, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2,
-  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard
+  XCircle, Star, Search, Filter, MoreVertical, Edit, Trash2, Plus, X, Save, ImageIcon, CreditCard, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,7 @@ type AdminOrderRow = {
   date: string;
   createdAt?: string;
   paymentMethod?: string;
+  personalMessage?: string;
   lineItems?: Array<{
     name: string;
     image: string;
@@ -132,6 +133,7 @@ const mapOrdersForAdmin = (orders: Order[]): AdminOrderRow[] =>
     date: formatOrderDate(order.createdAt),
     createdAt: order.createdAt,
     paymentMethod: order.paymentMethod,
+    personalMessage: order.personalMessage,
     lineItems: order.items,
   }));
 
@@ -334,7 +336,8 @@ const emptyProduct = {
   shortDescription: "",
   description: "",
   quantity: 50,
-  imageUrl: "",
+  imageFile: null as File | null,
+  imagePreview: "",
 };
 
 // ── Products Tab with CRUD ──
@@ -374,7 +377,8 @@ export const ProductsTab = () => {
       shortDescription: product.shortDescription,
       description: product.description,
       quantity: product.quantity,
-      imageUrl: typeof product.image === "string" ? product.image : "",
+      imageFile: null,
+      imagePreview: typeof product.image === "string" ? product.image : "",
     });
     setShowForm(true);
   };
@@ -386,7 +390,7 @@ export const ProductsTab = () => {
     }
 
     if (editingProduct) {
-      // Update existing
+      const imageUrl = formData.imagePreview || editingProduct.image;
       setProductList(prev =>
         prev.map(p =>
           p.id === editingProduct.id
@@ -401,20 +405,22 @@ export const ProductsTab = () => {
                 description: formData.description,
                 quantity: formData.quantity,
                 inStock: formData.quantity > 0,
+                image: imageUrl,
+                images: [imageUrl],
               }
             : p
         )
       );
       toast.success(`"${formData.name}" updated successfully!`);
     } else {
-      // Add new
+      const imageUrl = formData.imagePreview || "/placeholder.svg";
       const newProduct: Product = {
         id: `custom-${Date.now()}`,
         name: formData.name,
         price: formData.price,
         originalPrice: formData.originalPrice,
-        image: formData.imageUrl || "/placeholder.svg",
-        images: formData.imageUrl ? [formData.imageUrl] : ["/placeholder.svg"],
+        image: imageUrl,
+        images: [imageUrl],
         category: formData.category,
         flowerType: formData.flowerType,
         rating: 0,
@@ -582,9 +588,27 @@ export const ProductsTab = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prod-img">Image URL</Label>
-              <Input id="prod-img" placeholder="https://example.com/image.jpg" value={formData.imageUrl} onChange={e => setFormData(f => ({ ...f, imageUrl: e.target.value }))} />
-              <p className="text-xs text-muted-foreground">Paste an image URL or leave blank for placeholder.</p>
+              <Label htmlFor="prod-img">Product Image</Label>
+              <input
+                id="prod-img"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData(f => ({ ...f, imageFile: file, imagePreview: reader.result as string }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="w-full text-sm border border-border rounded-lg px-3 py-2 bg-background text-foreground file:mr-3 file:px-3 file:py-1 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:text-xs file:font-medium file:cursor-pointer"
+              />
+              {formData.imagePreview && (
+                <img src={formData.imagePreview} alt="Preview" className="w-20 h-20 rounded-lg object-cover border border-border" />
+              )}
+              <p className="text-xs text-muted-foreground">Upload a product image or leave blank for placeholder.</p>
             </div>
           </div>
 
@@ -758,6 +782,16 @@ export const OrdersTab = () => {
                     {selectedOrder.paid ? "Paid" : "Unpaid"}
                   </span>
                 </div>
+
+                {selectedOrder.personalMessage && (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-1">
+                    <p className="font-medium text-foreground flex items-center gap-1.5 text-xs">
+                      <MessageSquare className="w-3.5 h-3.5 text-primary" /> Personal Card Message
+                    </p>
+                    <p className="text-sm text-foreground italic">"{selectedOrder.personalMessage}"</p>
+                    <p className="text-[11px] text-muted-foreground">⚠️ Please write this message on a card and include it with the delivery.</p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   {selectedOrder.lineItems?.map((item) => (

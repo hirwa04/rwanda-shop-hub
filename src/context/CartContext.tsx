@@ -4,11 +4,12 @@ import type { Product } from "@/data/products";
 export interface CartItem {
   product: Product;
   quantity: number;
+  personalMessage?: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: Product, quantity?: number, personalMessage?: string) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -23,15 +24,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = useCallback((product: Product, quantity = 1) => {
+  const addToCart = useCallback((product: Product, quantity = 1, personalMessage?: string) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+          i.product.id === product.id ? { ...i, quantity: i.quantity + quantity, personalMessage: personalMessage || i.personalMessage } : i
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity, personalMessage }];
     });
   }, []);
 
