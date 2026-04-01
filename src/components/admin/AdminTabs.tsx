@@ -69,6 +69,7 @@ type AdminOrderRow = {
   date: string;
   createdAt?: string;
   paymentMethod?: string;
+  personalMessage?: string;
   lineItems?: Array<{
     name: string;
     image: string;
