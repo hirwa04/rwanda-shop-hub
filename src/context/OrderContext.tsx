@@ -31,6 +31,7 @@ export interface Order {
   deliveryFee: number;
   total: number;
   items: OrderItemSnapshot[];
+  personalMessage?: string;
   createdAt: string;
 }
 
