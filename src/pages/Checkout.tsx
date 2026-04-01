@@ -44,6 +44,11 @@ const Checkout = () => {
 
   const handlePlaceOrder = () => {
     const paid = form.paymentMethod !== "cod";
+    // Collect personal messages from cart items
+    const messages = items
+      .filter((item) => item.personalMessage)
+      .map((item) => `${item.product.name}: ${item.personalMessage}`)
+      .join(" | ");
 
     addOrder({
       customerName: form.name,
@@ -61,6 +66,7 @@ const Checkout = () => {
       deliveryFee,
       total,
       items,
+      personalMessage: messages || undefined,
     });
 
     toast.success("Order placed successfully! 🌸 We'll deliver your flowers with love.");
