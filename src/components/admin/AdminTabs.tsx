@@ -588,9 +588,27 @@ export const ProductsTab = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prod-img">Image URL</Label>
-              <Input id="prod-img" placeholder="https://example.com/image.jpg" value={formData.imageUrl} onChange={e => setFormData(f => ({ ...f, imageUrl: e.target.value }))} />
-              <p className="text-xs text-muted-foreground">Paste an image URL or leave blank for placeholder.</p>
+              <Label htmlFor="prod-img">Product Image</Label>
+              <input
+                id="prod-img"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData(f => ({ ...f, imageFile: file, imagePreview: reader.result as string }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="w-full text-sm border border-border rounded-lg px-3 py-2 bg-background text-foreground file:mr-3 file:px-3 file:py-1 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:text-xs file:font-medium file:cursor-pointer"
+              />
+              {formData.imagePreview && (
+                <img src={formData.imagePreview} alt="Preview" className="w-20 h-20 rounded-lg object-cover border border-border" />
+              )}
+              <p className="text-xs text-muted-foreground">Upload a product image or leave blank for placeholder.</p>
             </div>
           </div>
 
