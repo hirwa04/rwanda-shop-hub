@@ -32,7 +32,7 @@ const Shop = () => {
       case "rating": result.sort((a, b) => b.rating - a.rating); break;
     }
     return result;
-  }, [activeCategory, activeFlowerType, sort]);
+  }, [activeCategory, activeFlowerType, sort, products]);
 
   const setCategory = (cat: string) => {
     if (cat) setSearchParams({ category: cat });
