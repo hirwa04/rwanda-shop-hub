@@ -88,9 +88,6 @@ const Header = () => {
                 </span>
               )}
             </Link>
-            <Link to="/account" className="hidden sm:flex p-2 rounded-full hover:bg-secondary transition-colors text-foreground">
-              <User className="w-5 h-5" />
-            </Link>
           </div>
         </div>
 
@@ -158,9 +155,6 @@ const Header = () => {
                     {link.label}
                   </Link>
                 ))}
-                <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 rounded-lg text-sm font-medium hover:bg-secondary text-foreground">
-                  My Account
-                </Link>
               </nav>
             </motion.div>
           </>
@@ -175,7 +169,6 @@ const Header = () => {
             { to: "/shop", icon: Grid3X3, label: "Shop" },
             { to: "/cart", icon: ShoppingCart, label: "Cart", badge: itemCount },
             { to: "/wishlist", icon: Heart, label: "Wishlist" },
-            { to: "/account", icon: User, label: "Account" },
           ].map((item) => (
             <Link key={item.to} to={item.to} className={`flex flex-col items-center gap-0.5 text-[10px] relative px-3 py-1 ${location.pathname === item.to ? "text-primary" : "text-muted-foreground"}`}>
               <item.icon className="w-5 h-5" />
