@@ -88,9 +88,6 @@ const Header = () => {
                 </span>
               )}
             </Link>
-            <Link to="/account" className="hidden sm:flex p-2 rounded-full hover:bg-secondary transition-colors text-foreground">
-              <User className="w-5 h-5" />
-            </Link>
           </div>
         </div>
 
