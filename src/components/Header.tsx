@@ -155,9 +155,6 @@ const Header = () => {
                     {link.label}
                   </Link>
                 ))}
-                <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 rounded-lg text-sm font-medium hover:bg-secondary text-foreground">
-                  My Account
-                </Link>
               </nav>
             </motion.div>
           </>
