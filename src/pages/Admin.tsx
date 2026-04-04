@@ -118,7 +118,7 @@ const Admin = () => {
                 <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50">
                   <Home className="w-4 h-4" /> Back to Store
                 </Link>
-                <button onClick={() => { logout(); navigate("/account"); }}
+                <button onClick={() => { logout(); navigate("/admin/login"); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
