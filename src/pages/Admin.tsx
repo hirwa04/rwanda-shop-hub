@@ -24,7 +24,7 @@ const Admin = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAdmin) navigate("/account");
+    if (!isAdmin) navigate("/admin/login");
   }, [isAdmin, navigate]);
 
   if (!isAdmin) return null;
